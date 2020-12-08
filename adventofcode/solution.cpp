@@ -30,7 +30,8 @@ Solution::Solution()
 {
 }
 
-
+// Time:  O(n)
+// Space: O(n)
 void Solution::day8(const std::string& inputfile) {
     std::vector<std::pair<std::string, int>> instructions;
     read_if(inputfile, [&](const std::string& line, bool isLast){
@@ -111,7 +112,8 @@ void Solution::execute(const std::vector<std::pair<std::string, int>> &instructi
     }
 }
 
-
+// Time:  O(n)
+// Space: O(n)
 void Solution::day7(const std::string& inputfile, const std::string& target) {
     std::unordered_map<std::string, std::unordered_map<std::string, int>> forward_adj;
     std::unordered_map<std::string, std::unordered_set<std::string>> backward_adj;
@@ -192,6 +194,8 @@ void Solution::day6(const std::string& inputfile) {
     std::cout<< "ans2 :" << res2  << std::endl;
 }
 
+// Time:  O(n)
+// Space: O(n)
 void Solution::day5(const std::string& inputfile) {
     int idMax = INT_MIN;
     const size_t ROW_SIZE = 7;
@@ -220,6 +224,8 @@ void Solution::day5(const std::string& inputfile) {
     std::cout<< "ans2 :" << myId  << std::endl;
 }
 
+// Time:  O(n)
+// Space: O(n)
 void Solution::day4(const std::string& inputfile) {
     size_t res1 = 0;
     size_t res2 = 0;
@@ -325,6 +331,8 @@ bool Solution::isOkay(const std::unordered_map<std::string, std::function<bool (
     return true;
 }
 
+// Time:  O(n)
+// Space: O(n)
 void Solution::day3(const std::string& inputfile) {
     const std::vector<std::pair<int, int>> moves = {{1,1},{3,1},{5,1},{7,1},{1,2}};
     std::vector<int> trees(moves.size());
@@ -351,6 +359,8 @@ void Solution::day3(const std::string& inputfile) {
     std::cout<< " = " << res << std::endl;
 }
 
+// Time:  O(n)
+// Space: O(1)
 void Solution::day2(const std::string& inputfile) {
     size_t res1 = 0;
     size_t res2 = 0;
@@ -372,6 +382,8 @@ void Solution::day2(const std::string& inputfile) {
     std::cout<< "2. valid passwords:" << res2 << std::endl;
 }
 
+// Time:  O(n)
+// Space: O(n)
 void Solution::day1_1(const std::string& inputfile, int arg1)
 {
     std::unordered_set<int> data;
@@ -390,6 +402,8 @@ void Solution::day1_1(const std::string& inputfile, int arg1)
     });
 }
 
+// Time:  O(n*n)
+// Space: O(n)
 void Solution::day1_2(const std::string& inputfile, int arg1) {
    std::vector<int> data;
    std::unordered_map<int, size_t> idx;
