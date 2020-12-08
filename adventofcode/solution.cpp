@@ -198,14 +198,14 @@ void Solution::day5(const std::string& inputfile) {
     const size_t COL_SIZE = 3;
     std::unordered_map<int, std::pair<int, int>> rows;
     read_if(inputfile, [&](const std::string& line, bool isLast){
-        if(line.size() != ROW_SIZE + COL_SIZE) return  false;
+        if(line.size() != ROW_SIZE + COL_SIZE) return  true;
 
         int row = strToInt(line.substr(0, ROW_SIZE), 'B');
         int col = strToInt(line.substr(ROW_SIZE), 'R');
         ++rows[row].first;
         rows[row].second ^= col;
         idMax = std::max(idMax, row * 8 + col);
-        return false;
+        return true;
     });
     int myId = 0;
     const size_t maxCol = ~(~0u << COL_SIZE);
