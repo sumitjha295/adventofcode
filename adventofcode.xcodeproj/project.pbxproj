@@ -8,23 +8,50 @@
 
 /* Begin PBXBuildFile section */
 		956DFAEA2577ED2C006AFB79 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956DFAE92577ED2C006AFB79 /* main.cpp */; };
+		956DFAF42577EE8B006AFB79 /* solution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956DFAF22577EE8B006AFB79 /* solution.cpp */; };
+		956DFAFD2577F2DF006AFB79 /* day1.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFAFA2577F00A006AFB79 /* day1.txt */; };
+		956DFAFE2577F2DF006AFB79 /* day2.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFAFB2577F00A006AFB79 /* day2.txt */; };
+		956DFB07257908BD006AFB79 /* day3.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFB0525790891006AFB79 /* day3.txt */; };
+		956DFB10257A3702006AFB79 /* day4.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFB0E257A342F006AFB79 /* day4.txt */; };
+		956DFB13257B8A3A006AFB79 /* day5.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFB12257B8A2C006AFB79 /* day5.txt */; };
+		956DFB16257CCE9B006AFB79 /* day6.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFB15257CCE93006AFB79 /* day6.txt */; };
+		956DFB19257E2BF1006AFB79 /* day7.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFB18257E2BE6006AFB79 /* day7.txt */; };
+		956DFB1D257F67F8006AFB79 /* day8.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFB1C257F67EC006AFB79 /* day8.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		956DFAE42577ED2C006AFB79 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = data;
+			dstSubfolderSpec = 16;
 			files = (
+				956DFB1D257F67F8006AFB79 /* day8.txt in CopyFiles */,
+				956DFB19257E2BF1006AFB79 /* day7.txt in CopyFiles */,
+				956DFB16257CCE9B006AFB79 /* day6.txt in CopyFiles */,
+				956DFB13257B8A3A006AFB79 /* day5.txt in CopyFiles */,
+				956DFB10257A3702006AFB79 /* day4.txt in CopyFiles */,
+				956DFB07257908BD006AFB79 /* day3.txt in CopyFiles */,
+				956DFAFD2577F2DF006AFB79 /* day1.txt in CopyFiles */,
+				956DFAFE2577F2DF006AFB79 /* day2.txt in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		956DFAE62577ED2C006AFB79 /* adventofcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = adventofcode; sourceTree = BUILT_PRODUCTS_DIR; };
 		956DFAE92577ED2C006AFB79 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		956DFAF22577EE8B006AFB79 /* solution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = solution.cpp; sourceTree = "<group>"; };
+		956DFAF32577EE8B006AFB79 /* solution.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = solution.hpp; sourceTree = "<group>"; };
+		956DFAFA2577F00A006AFB79 /* day1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day1.txt; sourceTree = "<group>"; };
+		956DFAFB2577F00A006AFB79 /* day2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day2.txt; sourceTree = "<group>"; };
+		956DFB0525790891006AFB79 /* day3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day3.txt; sourceTree = "<group>"; };
+		956DFB0E257A342F006AFB79 /* day4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day4.txt; sourceTree = "<group>"; };
+		956DFB12257B8A2C006AFB79 /* day5.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day5.txt; sourceTree = "<group>"; };
+		956DFB15257CCE93006AFB79 /* day6.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day6.txt; sourceTree = "<group>"; };
+		956DFB18257E2BE6006AFB79 /* day7.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day7.txt; sourceTree = "<group>"; };
+		956DFB1C257F67EC006AFB79 /* day8.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day8.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +68,7 @@
 		956DFADD2577ED2C006AFB79 = {
 			isa = PBXGroup;
 			children = (
+				956DFAF92577F00A006AFB79 /* data */,
 				956DFAE82577ED2C006AFB79 /* adventofcode */,
 				956DFAE72577ED2C006AFB79 /* Products */,
 			);
@@ -58,8 +86,26 @@
 			isa = PBXGroup;
 			children = (
 				956DFAE92577ED2C006AFB79 /* main.cpp */,
+				956DFAF22577EE8B006AFB79 /* solution.cpp */,
+				956DFAF32577EE8B006AFB79 /* solution.hpp */,
 			);
 			path = adventofcode;
+			sourceTree = "<group>";
+		};
+		956DFAF92577F00A006AFB79 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				956DFB1C257F67EC006AFB79 /* day8.txt */,
+				956DFB18257E2BE6006AFB79 /* day7.txt */,
+				956DFB15257CCE93006AFB79 /* day6.txt */,
+				956DFB12257B8A2C006AFB79 /* day5.txt */,
+				956DFB0525790891006AFB79 /* day3.txt */,
+				956DFAFA2577F00A006AFB79 /* day1.txt */,
+				956DFB0E257A342F006AFB79 /* day4.txt */,
+				956DFAFB2577F00A006AFB79 /* day2.txt */,
+			);
+			name = data;
+			path = adventofcode/data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -118,6 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				956DFAF42577EE8B006AFB79 /* solution.cpp in Sources */,
 				956DFAEA2577ED2C006AFB79 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -239,7 +286,10 @@
 		956DFAEE2577ED2C006AFB79 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = adventofcode/data;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -247,7 +297,10 @@
 		956DFAEF2577ED2C006AFB79 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = adventofcode/data;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
