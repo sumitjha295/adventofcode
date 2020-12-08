@@ -46,33 +46,50 @@ void Solution::day8(const std::string& inputfile) {
 
 
 void Solution::fixCycle(std::vector<std::pair<std::string, int>>& instructions) {
-    std::unordered_set<int> visited;
+    std::unordered_set<int> forward_visited;
     int ans1 = -1, ans2=-1;
     execute(instructions, 0, [&](auto arg){
-        visited.insert(arg.first);
+        // collect jmp and nop in a corrupt code
+        if(instructions[arg.first].first != "acc" ) forward_visited.insert(arg.first);
         ans1 = arg.second;
     });
     
-    bool fixed = false;
-    for(auto i : visited){
+    // Create an Adj matrix from the bottom
+    std::unordered_map<size_t, std::unordered_set<size_t>> backward_adj;
+    for(size_t i = 0; i < instructions.size(); ++i){
         auto& [code, val] = instructions[i];
-        if(instructions[i].first == "acc" ) continue;
-        int lastIndex = -1;
-        std::string tmp  = code;
-        code = code == "jmp" ? "nop" : "jmp";
-        execute(instructions, i, [&](auto arg){
-            lastIndex = arg.first;
-        });
-        fixed = (lastIndex == instructions.size()-1);
-        if(fixed) break;
-        code = tmp;
+        if(code == "jmp") backward_adj[val+i].insert(i);
+        else backward_adj[i+1].insert(i);
     }
     
-    if(fixed){
-        execute(instructions, 0, [&](auto arg){
-            ans2 = arg.second;
-        });
+    // Iterate over the instrunctions to find list of instruction
+    // that can be reached in backward direction
+    std::stack<size_t> st;
+    std::unordered_set<size_t> backward_visited;
+    st.push(instructions.size()-1);
+    while(!st.empty()){
+        size_t u = st.top(); st.pop();
+        backward_visited.insert(u);
+        for(auto& v: backward_adj[u]){
+            if(backward_visited.find(v) == backward_visited.end()) st.push(v);
+        }
     }
+    
+    // Find the corrupt index by checking the index that can be reached
+    // from forward_visited to backward_visited by changind just one instruction
+    for(auto u : forward_visited){
+        auto& [code, val] = instructions[u];
+        size_t v = code == "jmp" ? u+1 : u+val;
+        if(backward_visited.find(v) != backward_visited.end()){
+            // wrong index found, fix it!
+            code = code == "jmp" ? "nop" : "jmp";
+            break;
+        }
+    }
+    
+    execute(instructions, 0, [&](auto arg){
+        ans2 = arg.second;
+    });
     std::cout<< "ans1 :" << ans1 <<  std::endl;
     std::cout<< "ans2 :" << ans2 <<  std::endl;
 
