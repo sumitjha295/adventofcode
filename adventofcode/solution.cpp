@@ -11,7 +11,7 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const std::string current = "day8";
+    const std::string current = "day9";
 }
 
 const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOLUTIONS = {
@@ -24,10 +24,69 @@ const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOL
     {"day6" , std::bind(day6, resource_dir + "day6.txt")},
     {"day7" , std::bind(day7, resource_dir + "day7.txt", "shiny gold")},
     {"day8" , std::bind(day8, resource_dir + "day8.txt")},
+    {"day9" , std::bind(day9, resource_dir + "day9.txt", 25)},
 };
 
 Solution::Solution()
 {
+}
+// Time:  O(n*p) n is size of input data, p is size of the preamble
+// Space: O(p)
+void Solution::day9(const std::string& inputfile, size_t preamble_size) {
+    std::vector<int64_t> data;
+    int64_t ans1 = 0, ans2 = 0;
+    // // PART 1
+    std::unordered_set<int64_t> preamble;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        int64_t val;
+        iss >> val;
+        bool is_valid_number = preamble.size() < preamble_size;
+        // prepare the preample with index and value
+        if(preamble.size() == preamble_size){
+            // check the validity of the number
+            for(auto it = data.rbegin();
+                it != next(data.rbegin(), preamble_size);
+                ++it ){
+                int64_t num1  = *it;
+                int64_t num2 = val - num1;
+                if(num1 == num2) continue;
+                if(preamble.find(num2) != preamble.end()){
+                    is_valid_number = true;
+                    // Remove the first number from the preamble
+                    preamble.erase(*next(data.rbegin(), preamble_size-1));
+                    break;
+                }
+            }
+        }
+        if(is_valid_number){
+            data.push_back(val);
+            preamble.insert(val);
+        }
+        else{
+            // Answer1 found, exit the loop.
+            ans1 = val;
+            return false;
+        }
+        return true;
+    });
+    
+    // PART 2
+    int64_t csum = 0, target = ans1;
+    std::unordered_map<int64_t, int> cmap = {{0,-1}};
+    for(int i = 0; i < data.size(); ++i){
+        csum += data[i];
+        if(cmap.find(csum-target) != cmap.end()){
+            int j = cmap[csum-target];
+            const auto [mi, mx] = std::minmax_element(std::next(data.begin(), j+1),
+                                                       std::next(data.begin(), i+1));
+            ans2 = *mi + *mx;
+            break;
+        }
+        cmap[csum] = i;
+    }
+    std::cout<< "ans1 :" << ans1 <<  std::endl;
+    std::cout<< "ans2 :" << ans2 <<  std::endl;
 }
 
 // Time:  O(n)
@@ -49,7 +108,7 @@ void Solution::day8(const std::string& inputfile) {
 void Solution::fixCycle(std::vector<std::pair<std::string, int>>& instructions) {
     std::unordered_set<int> forward_visited;
     int ans1 = -1, ans2=-1;
-    execute(instructions, 0, [&](auto arg){
+    execute(instructions, [&](auto arg){
         // collect jmp and nop in a corrupt code
         if(instructions[arg.first].first != "acc" ) forward_visited.insert(arg.first);
         ans1 = arg.second;
@@ -88,18 +147,16 @@ void Solution::fixCycle(std::vector<std::pair<std::string, int>>& instructions) 
         }
     }
     
-    execute(instructions, 0, [&](auto arg){
+    execute(instructions, [&](auto arg){
         ans2 = arg.second;
     });
     std::cout<< "ans1 :" << ans1 <<  std::endl;
     std::cout<< "ans2 :" << ans2 <<  std::endl;
-
 }
 
 void Solution::execute(const std::vector<std::pair<std::string, int>> &instructions,
-                       int start,
                        const std::function<void(std::pair<int, int>)>& handler) {
-    int acc = 0, i = start;
+    int acc = 0, i = 0;
     std::unordered_set<int> used;
     while(i < instructions.size()-1){
         if(used.find(i) != used.end()) break;
@@ -168,6 +225,8 @@ size_t Solution::children(const std::unordered_map<std::string,std::unordered_ma
     return res;
 }
 
+// Time:  O(n)
+// Space: O(n)
 void Solution::day6(const std::string& inputfile) {
     size_t res1 = 0;
     size_t res2 = 0;
@@ -258,7 +317,6 @@ void Solution::day4(const std::string& inputfile) {
     
     std::cout<< "ans1 :" << res1 << std::endl;
     std::cout<< "ans2 :" << res2 << std::endl;
-    
 }
 
 int Solution::strToInt(const std::string &str, char hiBit) {

@@ -14,9 +14,12 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <list>
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
+#include <numeric>
 
 class Solution
 {
@@ -26,9 +29,10 @@ public:
     static void run(bool all = false);
 
 private:
+    static void day9(const std::string& inputfile, size_t preamble_size);
+    
     static void day8(const std::string& inputfile);
     static void execute(const std::vector<std::pair<std::string, int>>& instructions,
-                        int start,
                         const std::function<void(std::pair<int, int>)>& handler);
 
     static void fixCycle(std::vector<std::pair<std::string, int>>& instructions);
