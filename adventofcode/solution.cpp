@@ -11,7 +11,7 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const std::string current = "day9";
+    const std::string current = "day10";
 }
 
 const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOLUTIONS = {
@@ -25,17 +25,80 @@ const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOL
     {"day7" , std::bind(day7, resource_dir + "day7.txt", "shiny gold")},
     {"day8" , std::bind(day8, resource_dir + "day8.txt")},
     {"day9" , std::bind(day9, resource_dir + "day9.txt", 25)},
+    {"day10" , std::bind(day10, resource_dir + "day10.txt")},
 };
 
 Solution::Solution()
 {
 }
-// Time:  O(n*p) n is size of input data, p is size of the preamble
-// Space: O(p)
+
+void Solution::day10(const std::string& inputfile) {
+    int max_jolt = INT_MIN;
+    std::unordered_set<int> data;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        int val;
+        iss >> val;
+        data.insert(val);
+        max_jolt = std::max(max_jolt, val);
+        return true;
+    });
+    max_jolt +=3;
+    data.insert(max_jolt);
+
+    // PART 1
+    auto [ones, threes] = steps_one_three(data, 0, max_jolt);
+    uint64_t ans1 = ones * threes;
+
+    // PART 2
+    uint64_t ans2 = path_count(data, 0, max_jolt);
+    
+    std::cout<< "ans1 :" <<  ans1 << std::endl;
+    std::cout<< "ans2 :" <<  ans2 << std::endl;
+}
+
+std::pair<uint64_t, uint64_t> Solution::steps_one_three(const std::unordered_set<int>& data, int first, int last) {
+    // Time:  O(n) n n = last-first
+    // Space: O(1)
+    uint64_t ones = 0, threes = 0;
+    while(first <= last){
+        if(data.find(first + 1) != data.end()) {
+            ++ones;
+            ++first;
+        }
+        else if(data.find(first + 3) != data.end()) {
+            ++threes;
+            first +=3;
+        }
+        else{
+            std::cout << "corrupt data" <<  std::endl;
+            break;
+        }
+    }
+    return {ones, threes};
+}
+
+uint64_t Solution::path_count(const std::unordered_set<int>& data, int first, int last) {
+    // Time:  O(n) n = last-first
+    // Space: O(n)
+    std::unordered_map<int, uint64_t> paths = {{0,1}};
+    while(first <= last){
+        for(int i = 1; i <= 3; ++i){
+            if(data.find(first+i) != data.end()){
+                paths[first+i] += paths[first];
+            }
+        }
+        ++first;
+    }
+    return paths[last];
+}
+
 void Solution::day9(const std::string& inputfile, size_t preamble_size) {
     std::vector<int64_t> data;
     int64_t ans1 = 0, ans2 = 0;
     // // PART 1
+    // Time:  O(n*p) n is size of input data, p is size of the preamble
+    // Space: O(p)
     std::unordered_set<int64_t> preamble;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
@@ -45,10 +108,8 @@ void Solution::day9(const std::string& inputfile, size_t preamble_size) {
         // prepare the preample with index and value
         if(preamble.size() == preamble_size){
             // check the validity of the number
-            for(auto it = data.rbegin();
-                it != next(data.rbegin(), preamble_size);
-                ++it ){
-                int64_t num1  = *it;
+            for(int i = 0; i < preamble_size; ++i){
+                int64_t num1  = *std::next(data.rbegin(), i);
                 int64_t num2 = val - num1;
                 if(num1 == num2) continue;
                 if(preamble.find(num2) != preamble.end()){
@@ -70,8 +131,9 @@ void Solution::day9(const std::string& inputfile, size_t preamble_size) {
         }
         return true;
     });
-    
     // PART 2
+    // Time:  O(n) n is size of input data,
+    // Space: O(n)
     int64_t csum = 0, target = ans1;
     std::unordered_map<int64_t, int> cmap = {{0,-1}};
     for(int i = 0; i < data.size(); ++i){
@@ -79,7 +141,7 @@ void Solution::day9(const std::string& inputfile, size_t preamble_size) {
         if(cmap.find(csum-target) != cmap.end()){
             int j = cmap[csum-target];
             const auto [mi, mx] = std::minmax_element(std::next(data.begin(), j+1),
-                                                       std::next(data.begin(), i+1));
+                                                      std::next(data.begin(), i+1));
             ans2 = *mi + *mx;
             break;
         }
@@ -521,5 +583,6 @@ void Solution::read_if(const std::string& filepath,
     while (std::getline(infile, line))
         if(!handler(line, infile.peek() == EOF)) return;
 }
+
 
 

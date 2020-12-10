@@ -29,6 +29,10 @@ public:
     static void run(bool all = false);
 
 private:
+    static void day10(const std::string& inputfile);
+    static std::pair<uint64_t, uint64_t> steps_one_three(const std::unordered_set<int>& data, int first, int last);
+    static uint64_t path_count(const std::unordered_set<int>& data, int first, int last);
+
     static void day9(const std::string& inputfile, size_t preamble_size);
     
     static void day8(const std::string& inputfile);
