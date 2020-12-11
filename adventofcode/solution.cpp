@@ -650,11 +650,11 @@ void Solution::run(bool all) {
 
 
 void Solution::read_if(const std::string& filepath,
-                         const std::function<bool(std::string, bool)>& handler){
+                       const std::function<bool(std::string, bool)>& handler){
     std::ifstream infile(filepath);
-    std::string line;
-    while (std::getline(infile, line))
-        if(!handler(line, infile.peek() == EOF)) return;
+    std::istream_iterator<Line> begin(infile), end;
+    for(;begin != end; ++begin)
+        if(!handler(*begin, begin == end)) return;
 }
 
 
