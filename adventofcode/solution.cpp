@@ -11,7 +11,7 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const std::string current = "day11";
+    const std::string current = "day12";
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
 }
 
@@ -28,10 +28,22 @@ const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOL
     {"day9" , std::bind(day9, resource_dir + "day9.txt", 25)},
     {"day10" , std::bind(day10, resource_dir + "day10.txt")},
     {"day11" , std::bind(day11, resource_dir + "day11.txt")},
+    {"day12" , std::bind(day12, resource_dir + "day12.txt")},
 };
 
 Solution::Solution()
 {
+}
+
+void Solution::day12(const std::string& inputfile) {
+    std::vector<std::string> data;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        std::string row;
+        iss >> row;
+        data.push_back(row);
+        return true;
+    });
 }
 
 void Solution::day11(const std::string& inputfile) {
@@ -51,19 +63,22 @@ size_t Solution::occupied_visible(const std::vector<std::string>& layout){
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     std::vector<std::string> curr = layout;
-    while(true){
+    bool changed = true;
+    while(changed){
         std::vector<std::string> next = curr;
+        changed = false;
         for(size_t i = 0; i < m; ++i){
             for(size_t j = 0; j < n; ++j){
-                if(curr[i][j] == 'L' && count_visible(curr, i, j, '#') == 0){
+                if(curr[i][j] == 'L' && next[i][j] != '#' && count_visible(curr, i, j, '#') == 0){
                     next[i][j] = '#';
+                    changed = true;
                 }
-                else if(curr[i][j] == '#' && count_visible(curr, i, j, '#') >= 5){
+                else if(curr[i][j] == '#' && next[i][j] != 'L' && count_visible(curr, i, j, '#') >= 5){
                     next[i][j] = 'L';
+                    changed = true;
                 }
             }
         }
-        if(curr == next) break;
         curr = next;
     }
     return count_seats(curr, '#');
@@ -73,19 +88,22 @@ size_t Solution::occupied_adjacent(const std::vector<std::string>& layout){
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     std::vector<std::string> curr = layout;
-    while(true){
+    bool changed = true;
+    while(changed){
         std::vector<std::string> next = curr;
+        changed = false;
         for(size_t i = 0; i < m; ++i){
             for(size_t j = 0; j < n; ++j){
-                if(curr[i][j] == 'L' && count_adjacent(curr, i, j, '#') == 0){
+                if(curr[i][j] == 'L' && next[i][j] != '#' && count_adjacent(curr, i, j, '#') == 0){
                     next[i][j] = '#';
+                    changed = true;
                 }
-                else if(curr[i][j] == '#' && count_adjacent(curr, i, j, '#') >= 4){
+                else if(curr[i][j] == '#' && next[i][j] != 'L' && count_adjacent(curr, i, j, '#') >= 4){
                     next[i][j] = 'L';
+                    changed = true;
                 }
             }
         }
-        if(curr == next) break;
         curr = next;
     }
     return count_seats(curr, '#');
@@ -115,17 +133,19 @@ size_t Solution::count_visible(const std::vector<std::string>& layout, size_t x,
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     size_t cnt = 0;
-    size_t max_len = std::max(m, n); // this could be optimized.
     for(auto& [dx, dy]: dirs){
-        size_t len  = 0;
-        while(++len < max_len){
-            size_t nx = x+ len*dx;
-            size_t ny = y+ len*dy;
-            if(nx >= 0 && nx < m && ny >= 0 && ny < n){
-                if(layout[nx][ny] == '.') continue;
-                if(layout[nx][ny] == seat) ++cnt;
-                break;
+        size_t len  = 1;
+        size_t nx = x+len*dx;
+        size_t ny = y+len*dy;
+        while(nx >= 0 && nx < m && ny >= 0 && ny < n){
+            if(layout[nx][ny] == '.') {
+                ++len;
+                nx = x+len*dx;
+                ny = y+len*dy;
+                continue;
             }
+            if(layout[nx][ny] == seat) ++cnt;
+            break;
         }
     }
     return cnt;

@@ -29,6 +29,8 @@ public:
     static void run(bool all = false);
 
 private:
+    static void day12(const std::string& inputfile);
+
     static void day11(const std::string& inputfile);
     static size_t occupied_adjacent(const std::vector<std::string>& layout);
     static size_t occupied_visible(const std::vector<std::string>& layout);
