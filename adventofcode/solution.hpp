@@ -29,6 +29,13 @@ public:
     static void run(bool all = false);
 
 private:
+    static void day11(const std::string& inputfile);
+    static size_t occupied_adjacent(const std::vector<std::string>& layout);
+    static size_t occupied_visible(const std::vector<std::string>& layout);
+    static size_t count_adjacent(const std::vector<std::string>& layout, size_t x, size_t y, char seat);
+    static size_t count_visible(const std::vector<std::string>& layout, size_t x, size_t y, char seat);
+    static size_t count_seats(const std::vector<std::string>& layout, char seat);
+
     static void day10(const std::string& inputfile);
     static std::pair<uint64_t, uint64_t> steps_one_three(const std::unordered_set<int>& data, int first, int last);
     static uint64_t path_count(const std::unordered_set<int>& data, int first, int last);

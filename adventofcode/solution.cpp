@@ -11,7 +11,8 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const std::string current = "day10";
+    const std::string current = "day11";
+    const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
 }
 
 const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOLUTIONS = {
@@ -26,11 +27,111 @@ const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOL
     {"day8" , std::bind(day8, resource_dir + "day8.txt")},
     {"day9" , std::bind(day9, resource_dir + "day9.txt", 25)},
     {"day10" , std::bind(day10, resource_dir + "day10.txt")},
+    {"day11" , std::bind(day11, resource_dir + "day11.txt")},
 };
 
 Solution::Solution()
 {
 }
+
+void Solution::day11(const std::string& inputfile) {
+    std::vector<std::string> layout;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        std::string row;
+        iss >> row;
+        layout.push_back(row);
+        return true;
+    });
+    std::cout << "ans1: " << occupied_adjacent(layout) << std::endl;
+    std::cout << "ans2: " << occupied_visible(layout) << std::endl;
+}
+
+size_t Solution::occupied_visible(const std::vector<std::string>& layout){
+    size_t m = layout.size();
+    size_t n = m ? layout[0].size(): 0;
+    std::vector<std::string> curr = layout;
+    while(true){
+        std::vector<std::string> next = curr;
+        for(size_t i = 0; i < m; ++i){
+            for(size_t j = 0; j < n; ++j){
+                if(curr[i][j] == 'L' && count_visible(curr, i, j, '#') == 0){
+                    next[i][j] = '#';
+                }
+                else if(curr[i][j] == '#' && count_visible(curr, i, j, '#') >= 5){
+                    next[i][j] = 'L';
+                }
+            }
+        }
+        if(curr == next) break;
+        curr = next;
+    }
+    return count_seats(curr, '#');
+}
+
+size_t Solution::occupied_adjacent(const std::vector<std::string>& layout){
+    size_t m = layout.size();
+    size_t n = m ? layout[0].size(): 0;
+    std::vector<std::string> curr = layout;
+    while(true){
+        std::vector<std::string> next = curr;
+        for(size_t i = 0; i < m; ++i){
+            for(size_t j = 0; j < n; ++j){
+                if(curr[i][j] == 'L' && count_adjacent(curr, i, j, '#') == 0){
+                    next[i][j] = '#';
+                }
+                else if(curr[i][j] == '#' && count_adjacent(curr, i, j, '#') >= 4){
+                    next[i][j] = 'L';
+                }
+            }
+        }
+        if(curr == next) break;
+        curr = next;
+    }
+    return count_seats(curr, '#');
+}
+
+size_t Solution::count_adjacent(const std::vector<std::string>& layout, size_t x, size_t y, char seat){
+    size_t m = layout.size();
+    size_t n = m ? layout[0].size(): 0;
+    size_t cnt = 0;
+    for(auto& [dx, dy]: dirs){
+        size_t nx = x+dx;
+        size_t ny = y+dy;
+        if(nx >= 0 && nx < m && ny >= 0 && ny < n && layout[nx][ny] == seat) ++cnt;
+    }
+    return cnt;
+}
+
+size_t Solution::count_seats(const std::vector<std::string>& layout, char seat){
+    size_t occupied_seats = 0;
+    for(const auto& row: layout){
+        occupied_seats+= std::count_if(row.begin(), row.end(), [seat](char c){ return c==seat;});
+    }
+    return occupied_seats;
+}
+
+size_t Solution::count_visible(const std::vector<std::string>& layout, size_t x, size_t y, char seat){
+    size_t m = layout.size();
+    size_t n = m ? layout[0].size(): 0;
+    size_t cnt = 0;
+    size_t max_len = std::max(m, n); // this could be optimized.
+    for(auto& [dx, dy]: dirs){
+        size_t len  = 0;
+        while(++len < max_len){
+            size_t nx = x+ len*dx;
+            size_t ny = y+ len*dy;
+            if(nx >= 0 && nx < m && ny >= 0 && ny < n){
+                if(layout[nx][ny] == '.') continue;
+                if(layout[nx][ny] == seat) ++cnt;
+                break;
+            }
+        }
+    }
+    return cnt;
+}
+
+
 
 void Solution::day10(const std::string& inputfile) {
     int max_jolt = INT_MIN;
@@ -236,19 +337,16 @@ void Solution::execute(const std::vector<std::pair<std::string, int>> &instructi
 void Solution::day7(const std::string& inputfile, const std::string& target) {
     std::unordered_map<std::string, std::unordered_map<std::string, int>> forward_adj;
     std::unordered_map<std::string, std::unordered_set<std::string>> backward_adj;
-    std::unordered_map<std::string, size_t> inorder;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
         std::string shade, color, dummy;
         int num;
         while(iss >> shade >> color >> dummy >> dummy){
             std::string parent_color = shade + " " + color;
-            if(!inorder.count(parent_color)) inorder[parent_color] = 0;
             while(iss >> num >> shade >> color >> dummy){
                 std::string next_color = shade + " " + color;
                 forward_adj[parent_color].insert({next_color, num});
                 backward_adj[next_color].insert(parent_color);
-                ++inorder[next_color];
             }
         }
         return true;
