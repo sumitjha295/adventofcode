@@ -11,23 +11,23 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const std::string current = "day11";
+    const int current_day = 10;
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
 }
 
-const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOLUTIONS = {
-    {"day1" , std::bind(day1, resource_dir + "day1.txt", 2020)},
-    {"day2" , std::bind(day2, resource_dir + "day2.txt")},
-    {"day3" , std::bind(day3, resource_dir + "day3.txt")},
-    {"day4" , std::bind(day4, resource_dir + "day4.txt")},
-    {"day5" , std::bind(day5, resource_dir + "day5.txt")},
-    {"day6" , std::bind(day6, resource_dir + "day6.txt")},
-    {"day7" , std::bind(day7, resource_dir + "day7.txt", "shiny gold")},
-    {"day8" , std::bind(day8, resource_dir + "day8.txt")},
-    {"day9" , std::bind(day9, resource_dir + "day9.txt", 25)},
-    {"day10" , std::bind(day10, resource_dir + "day10.txt")},
-    {"day11" , std::bind(day11, resource_dir + "day11.txt")},
-    {"day12" , std::bind(day12, resource_dir + "day12.txt")},
+const std::vector<std::function<void(void)>> Solution::S_SOLUTIONS = {
+    std::bind(day1, resource_dir + "day1.txt", 2020),
+    std::bind(day2, resource_dir + "day2.txt"),
+    std::bind(day3, resource_dir + "day3.txt"),
+    std::bind(day4, resource_dir + "day4.txt"),
+    std::bind(day5, resource_dir + "day5.txt"),
+    std::bind(day6, resource_dir + "day6.txt"),
+    std::bind(day7, resource_dir + "day7.txt", "shiny gold"),
+    std::bind(day8, resource_dir + "day8.txt"),
+    std::bind(day9, resource_dir + "day9.txt", 25),
+    std::bind(day10, resource_dir + "day10.txt"),
+    std::bind(day11, resource_dir + "day11.txt"),
+    std::bind(day12, resource_dir + "day12.txt"),
 };
 
 Solution::Solution()
@@ -54,11 +54,11 @@ void Solution::day11(const std::string& inputfile) {
         layout.push_back(row);
         return true;
     });
-    std::cout << "ans1: " << occupied_adjacent(layout) << std::endl;
-    std::cout << "ans2: " << occupied_visible(layout) << std::endl;
+    std::cout << "ans1: " << occupied_seats(layout, true, 4) << std::endl;
+    std::cout << "ans2: " << occupied_seats(layout, false, 5) << std::endl;
 }
 
-size_t Solution::occupied_visible(const std::vector<std::string>& layout){
+size_t Solution::occupied_seats(const std::vector<std::string>& layout, bool adjacent, int max_neigbhour){
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     std::vector<std::string> curr = layout;
@@ -68,11 +68,11 @@ size_t Solution::occupied_visible(const std::vector<std::string>& layout){
         changed = false;
         for(size_t i = 0; i < m; ++i){
             for(size_t j = 0; j < n; ++j){
-                if(curr[i][j] == 'L' && next[i][j] != '#' && count_visible(curr, i, j, '#') == 0){
+                if(curr[i][j] == 'L' && next[i][j] != '#' && count_neigbhour(curr, i, j, '#', adjacent) == 0){
                     next[i][j] = '#';
                     changed = true;
                 }
-                else if(curr[i][j] == '#' && next[i][j] != 'L' && count_visible(curr, i, j, '#') >= 5){
+                else if(curr[i][j] == '#' && next[i][j] != 'L' && count_neigbhour(curr, i, j, '#', adjacent) >= max_neigbhour){
                     next[i][j] = 'L';
                     changed = true;
                 }
@@ -81,54 +81,17 @@ size_t Solution::occupied_visible(const std::vector<std::string>& layout){
         curr = next;
     }
     return count_seats(curr, '#');
-}
-
-size_t Solution::occupied_adjacent(const std::vector<std::string>& layout){
-    size_t m = layout.size();
-    size_t n = m ? layout[0].size(): 0;
-    std::vector<std::string> curr = layout;
-    bool changed = true;
-    while(changed){
-        std::vector<std::string> next = curr;
-        changed = false;
-        for(size_t i = 0; i < m; ++i){
-            for(size_t j = 0; j < n; ++j){
-                if(curr[i][j] == 'L' && next[i][j] != '#' && count_adjacent(curr, i, j, '#') == 0){
-                    next[i][j] = '#';
-                    changed = true;
-                }
-                else if(curr[i][j] == '#' && next[i][j] != 'L' && count_adjacent(curr, i, j, '#') >= 4){
-                    next[i][j] = 'L';
-                    changed = true;
-                }
-            }
-        }
-        curr = next;
-    }
-    return count_seats(curr, '#');
-}
-
-size_t Solution::count_adjacent(const std::vector<std::string>& layout, size_t x, size_t y, char seat){
-    size_t m = layout.size();
-    size_t n = m ? layout[0].size(): 0;
-    size_t cnt = 0;
-    for(auto& [dx, dy]: dirs){
-        size_t nx = x+dx;
-        size_t ny = y+dy;
-        if(nx >= 0 && nx < m && ny >= 0 && ny < n && layout[nx][ny] == seat) ++cnt;
-    }
-    return cnt;
 }
 
 size_t Solution::count_seats(const std::vector<std::string>& layout, char seat){
     size_t occupied_seats = 0;
     for(const auto& row: layout){
-        occupied_seats+= std::count_if(row.begin(), row.end(), [seat](char c){ return c == seat;});
+        occupied_seats += std::count_if(row.begin(), row.end(), [seat](char c){ return c == seat;});
     }
     return occupied_seats;
 }
 
-size_t Solution::count_visible(const std::vector<std::string>& layout, size_t x, size_t y, char seat){
+size_t Solution::count_neigbhour(const std::vector<std::string>& layout, size_t x, size_t y, char seat,  bool adjacent){
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     size_t cnt = 0;
@@ -136,7 +99,9 @@ size_t Solution::count_visible(const std::vector<std::string>& layout, size_t x,
         size_t len  = 1;
         size_t nx = x+len*dx;
         size_t ny = y+len*dy;
-        while(nx >= 0 && nx < m && ny >= 0 && ny < n && layout[nx][ny] == '.'){
+        // if adjacent = true, just check next neigbhours else check for all possible
+        // of seats in current direction
+        while(!adjacent && nx >= 0 && nx < m && ny >= 0 && ny < n && layout[nx][ny] == '.'){
                 ++len;
                 nx = x+len*dx;
                 ny = y+len*dy;
@@ -146,8 +111,6 @@ size_t Solution::count_visible(const std::vector<std::string>& layout, size_t x,
     }
     return cnt;
 }
-
-
 
 void Solution::day10(const std::string& inputfile) {
     int max_jolt = INT_MIN;
@@ -178,7 +141,7 @@ std::pair<uint64_t, uint64_t> Solution::steps_one_three(const std::unordered_set
     // Time:  O(n) n n = last-first
     // Space: O(1)
     uint64_t ones = 0, threes = 0;
-    while(first <= last){
+    while(first < last){
         if(data.find(first + 1) != data.end()) {
             ++ones;
             ++first;
@@ -666,17 +629,17 @@ std::tuple<int64_t, int64_t,int64_t> Solution::three_sum(const std::vector<int64
 void Solution::run(bool all) {
     std::cout<< "-------Started-----" << std::endl;
     if(all){
-        for(const auto& [day, solution] : S_SOLUTIONS) {
-            std::cout<< "-----" << day << "-----" << std::endl << std::endl;
+        int i = 0;
+        for(const auto& solution : S_SOLUTIONS) {
+            std::cout<< "-----day " << ++i << "-----" << std::endl << std::endl;
             solution();
             std::cout<< std::endl;
         }
     }
     else {
-        auto itr = S_SOLUTIONS.find(current);
-        if(itr != S_SOLUTIONS.end()){
-            const auto& [day, solution] = *itr;
-            std::cout<< "-----" << day << "-----" << std::endl << std::endl;
+        if(current_day > 0 && current_day <= S_SOLUTIONS.size()){
+            const auto& solution = S_SOLUTIONS[current_day-1];
+            std::cout<< "-----day " << current_day << "-----" << std::endl << std::endl;
             solution();
             std::cout<< std::endl;
         }

@@ -9,5 +9,5 @@
 
 int main(int argc, const char * argv[]) {
     
-    Solution::run();
+    Solution::run(true);
 }

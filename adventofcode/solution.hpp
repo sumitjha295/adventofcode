@@ -20,6 +20,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <numeric>
+#include <map>
 
 class Solution
 {
@@ -34,8 +35,8 @@ private:
     static void day11(const std::string& inputfile);
     static size_t occupied_adjacent(const std::vector<std::string>& layout);
     static size_t occupied_visible(const std::vector<std::string>& layout);
-    static size_t count_adjacent(const std::vector<std::string>& layout, size_t x, size_t y, char seat);
-    static size_t count_visible(const std::vector<std::string>& layout, size_t x, size_t y, char seat);
+    static size_t occupied_seats(const std::vector<std::string>& layout, bool adjacent, int max_neigbhour);
+    static size_t count_neigbhour(const std::vector<std::string>& layout, size_t x, size_t y, char seat, bool adjacent = true);
     static size_t count_seats(const std::vector<std::string>& layout, char seat);
 
     static void day10(const std::string& inputfile);
@@ -83,6 +84,5 @@ private:
     static void read_if(const std::string& filepath,
                           const std::function<bool(std::string, bool)>& handler);
     
-    static const std::unordered_map<std::string, std::function<void(void)>> S_SOLUTIONS;
-
+    static const std::vector<std::function<void(void)>> S_SOLUTIONS;
 };
