@@ -37,8 +37,6 @@ private:
     static void day12(const std::string& inputfile);
 
     static void day11(const std::string& inputfile);
-    static size_t occupied_adjacent(const std::vector<std::string>& layout);
-    static size_t occupied_visible(const std::vector<std::string>& layout);
     static size_t occupied_seats(const std::vector<std::string>& layout, bool adjacent, int max_neigbhour);
     static size_t count_neigbhour(const std::vector<std::string>& layout, size_t x, size_t y, char seat, bool adjacent = true);
     static size_t count_seats(const std::vector<std::string>& layout, char seat);
