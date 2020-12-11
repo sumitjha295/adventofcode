@@ -11,13 +11,12 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const std::string current = "day12";
+    const std::string current = "day11";
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
 }
 
 const std::unordered_map<std::string, std::function<void(void)>> Solution::S_SOLUTIONS = {
-    {"day1_1" , std::bind(day1_1, resource_dir + "day1.txt", 2020)},
-    {"day1_2" , std::bind(day1_2, resource_dir + "day1.txt", 2020)},
+    {"day1" , std::bind(day1, resource_dir + "day1.txt", 2020)},
     {"day2" , std::bind(day2, resource_dir + "day2.txt")},
     {"day3" , std::bind(day3, resource_dir + "day3.txt")},
     {"day4" , std::bind(day4, resource_dir + "day4.txt")},
@@ -124,7 +123,7 @@ size_t Solution::count_adjacent(const std::vector<std::string>& layout, size_t x
 size_t Solution::count_seats(const std::vector<std::string>& layout, char seat){
     size_t occupied_seats = 0;
     for(const auto& row: layout){
-        occupied_seats+= std::count_if(row.begin(), row.end(), [seat](char c){ return c==seat;});
+        occupied_seats+= std::count_if(row.begin(), row.end(), [seat](char c){ return c == seat;});
     }
     return occupied_seats;
 }
@@ -137,16 +136,13 @@ size_t Solution::count_visible(const std::vector<std::string>& layout, size_t x,
         size_t len  = 1;
         size_t nx = x+len*dx;
         size_t ny = y+len*dy;
-        while(nx >= 0 && nx < m && ny >= 0 && ny < n){
-            if(layout[nx][ny] == '.') {
+        while(nx >= 0 && nx < m && ny >= 0 && ny < n && layout[nx][ny] == '.'){
                 ++len;
                 nx = x+len*dx;
                 ny = y+len*dy;
                 continue;
-            }
-            if(layout[nx][ny] == seat) ++cnt;
-            break;
         }
+        if(nx >= 0 && nx < m && ny >= 0 && ny < n && layout[nx][ny] == seat) ++cnt;
     }
     return cnt;
 }
@@ -572,13 +568,13 @@ bool Solution::isOkay(const std::unordered_map<std::string, std::function<bool (
 // Time:  O(n)
 // Space: O(n)
 void Solution::day3(const std::string& inputfile) {
-    const std::vector<std::pair<int, int>> moves = {{1,1},{3,1},{5,1},{7,1},{1,2}};
-    std::vector<int> trees(moves.size());
-    std::vector<int> pos(moves.size());
+    const std::vector<std::pair<uint64_t, uint64_t>> moves = {{1,1},{3,1},{5,1},{7,1},{1,2}};
+    std::vector<uint32_t> trees(moves.size());
+    std::vector<uint32_t> pos(moves.size());
     int level = 0;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         size_t n = line.size();
-        for(int i = 0; i < moves.size();++i){
+        for(size_t i = 0; i < moves.size();++i){
             const auto& [x,y] = moves[i];
             if(level%y == 0){
                 if(line[pos[i]%n] == '#') ++trees[i];
@@ -588,13 +584,11 @@ void Solution::day3(const std::string& inputfile) {
         ++level;
         return true;
     });
-    std::cout<< "trees("<<  moves[1].first << "," <<  moves[1].second << "): " << trees[1] << std::endl;
-    long long res = 1;
-    for(const auto& tree: trees){
-        std::cout<< tree << "  ";
-        res *= tree;
-    }
-    std::cout<< " = " << res << std::endl;
+    uint64_t res = std::accumulate(trees.begin(), trees.end(), 1u, std::multiplies<uint64_t>());
+    
+    std::cout<< "ans1: " << trees[1] << std::endl;
+    std::cout<< "ans2: " << res << std::endl;
+
 }
 
 // Time:  O(n)
@@ -616,59 +610,57 @@ void Solution::day2(const std::string& inputfile) {
         if((pwd[lo-1] == c)^(pwd[hi-1] == c))  ++res2;
         return true;
     });
-    std::cout<< "1. valid passwords:" << res1 << std::endl;
-    std::cout<< "2. valid passwords:" << res2 << std::endl;
+    std::cout<< "ans1: " << res1 << std::endl;
+    std::cout<< "ans2: " << res2 << std::endl;
+}
+
+void Solution::day1(const std::string& inputfile, int arg1)
+{
+    //collect data
+    std::vector<int64_t> data;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        int64_t value;
+        iss >> value;
+        data.push_back(value);
+        return  true;
+    });
+    // solve
+    auto [a , b] = two_sum(data, arg1);
+    auto [p , q, r] = three_sum(data, arg1);
+    
+    std::cout<< "ans1: " << a*b << std::endl;
+    std::cout<< "ans2: " << p*q*r << std::endl;
 }
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day1_1(const std::string& inputfile, int arg1)
-{
-    std::unordered_set<int> data;
-    int sum = arg1;
-    long long res = 0;
-    read_if(inputfile, [&](const std::string& line, bool isLast){
-        int num = stoi(line);
-        if(data.find(sum-num) != data.end()){
-            res = num*(sum-num);
-            std::cout<< num << "+" << (sum-num) << "=" << sum <<  std::endl;
-            std::cout<< num << "*" << (sum-num) << "=" << res <<  std::endl;
-            return false;
-        }
-        data.insert(num);
-        return  true;
-    });
+std::pair<int64_t, int64_t>  Solution::two_sum(const std::vector<int64_t>& data, int sum) {
+    std::unordered_set<int64_t> cache;
+    for(int64_t num: data){
+        if(cache.find(sum-num) != cache.end()) return {num, sum-num};
+        cache.insert(num);
+    }
+    return {0,0};
 }
+
 
 // Time:  O(n*n)
 // Space: O(n)
-void Solution::day1_2(const std::string& inputfile, int arg1) {
-   std::vector<int> data;
-   std::unordered_map<int, size_t> idx;
-   int sum = arg1;
-   long long res = 0;
-    read_if(inputfile, [&](const std::string& line, bool isLast){
-       int num = stoi(line);
-       idx.insert({num, data.size()});
-       data.push_back(num);
-       return  true;
-   });
+std::tuple<int64_t, int64_t,int64_t> Solution::three_sum(const std::vector<int64_t>& data, int sum){
+    std::unordered_map<size_t, int64_t> cache;
+    for(size_t i = 0; i < data.size(); ++i) cache[data[i]] = i;
 
-   for(size_t i = 0; i < data.size(); ++i){
-       for(size_t j = i+1; j < data.size(); ++j){
-            int num = data[i] + data[j];
-            int left = sum-num;
-            if(idx.find(left) != idx.end()){
-                size_t k = idx[left];
-                if(k > j){
-                    res = data[i] * data[j] * left;
-                    std::cout<< data[i] << "+" << data[j] << "+" << left << "=" << num+left <<  std::endl;
-                    std::cout<< data[i] << "*" << data[j] << "*" << left << "=" << res <<  std::endl;
-                    return;
-                }
-            }
-       }
-   }
+    for(size_t i = 0; i < data.size(); ++i){
+        for(size_t j = i+1; j < data.size(); ++j){
+            int64_t left = sum - data[i] - data[j];
+            if(cache.find(left) == cache.end()) continue;
+            
+            size_t k = cache[left];
+            if(k > j) return {data[i], data[j], data[k]};
+        }
+    }
+    return {0,0,0};
 }
 
 void Solution::run(bool all) {

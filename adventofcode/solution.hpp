@@ -74,8 +74,11 @@ private:
     
     static void day2(const std::string& inputfile);
 
-    static void day1_1(const std::string& inputfile, int arg1);
+    static void day1(const std::string& inputfile, int arg1);
     static void day1_2(const std::string& inputfile, int arg1);
+    static std::pair<int64_t, int64_t> two_sum(const std::vector<int64_t>& data, int sum);
+    static std::tuple<int64_t, int64_t,int64_t> three_sum(const std::vector<int64_t>& data, int sum);
+    
     
     static void read_if(const std::string& filepath,
                           const std::function<bool(std::string, bool)>& handler);
