@@ -36,14 +36,13 @@ public:
     static void run(bool all = false);
 
 private:
+    static void day13(const std::string& inputfile);
+
     static void day12(const std::string& inputfile);
     static uint32_t get_displacement(const std::vector<std::pair<char, int>>& commands,
                                      std::complex<int> position,
-                                     std::complex<int> direction);
-    static uint32_t get_displacement_waypoint(const std::vector<std::pair<char, int>>& commands,
-                                              std::complex<int> waypoint,
-                                              std::complex<int> position,
-                                              std::complex<int> direction);
+                                     std::complex<int> direction,
+                                     bool waypoint);
 
 
     static void day11(const std::string& inputfile);

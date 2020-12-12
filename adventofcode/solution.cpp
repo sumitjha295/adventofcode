@@ -11,16 +11,16 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const int current_day = 12;
+    const int current_day = 13;
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
     const std::unordered_map<char, std::complex<int>> ctable = {
-        {'N', std::complex<int>(0,1)},
-        {'S', std::complex<int>(0,-1)},
-        {'E', std::complex<int>(1,0)},
-        {'W', std::complex<int>(-1,0)},
-        {'F', std::complex<int>(1,0)},
-        {'R', std::complex<int>(0,-1)},
-        {'L', std::complex<int>(0,1)},
+        {'N', {0,1}},
+        {'S', {0,-1}},
+        {'E', {1,0}},
+        {'W', {-1,0}},
+        {'R', {0,-1}},
+        {'L', {0,1}},
+        {'F', {1,0}},
     };
 }
 
@@ -37,10 +37,17 @@ const std::vector<std::function<void(void)>> Solution::S_SOLUTIONS = {
     std::bind(day10, resource_dir + "day10.txt"),
     std::bind(day11, resource_dir + "day11.txt"),
     std::bind(day12, resource_dir + "day12.txt"),
+    std::bind(day13, resource_dir + "day13.txt"),
 };
 
 Solution::Solution()
 {
+}
+
+void Solution::day13(const std::string& inputfile) {
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        return true;
+    });
 }
 
 void Solution::day12(const std::string& inputfile) {
@@ -55,42 +62,14 @@ void Solution::day12(const std::string& inputfile) {
     });
 
     std::complex<int> start(0, 0), direction(1, 0), waypoint(10, 1);
-    std::cout << "ans1: " << get_displacement(commands, start, direction) << std::endl;
-    std::cout << "ans1: " << get_displacement_waypoint(commands, waypoint, start, direction) << std::endl;
-}
-
-uint32_t Solution::get_displacement_waypoint(const std::vector<std::pair<char, int>>& commands,
-                                             std::complex<int> waypoint,
-                                             std::complex<int> position,
-                                             std::complex<int> direction){
-    for(const auto& [command, value]: commands){
-        auto itr = ctable.find(command);
-        if(itr == ctable.end()) continue;
-        const auto& [c, delta] = *itr;
-        switch (c) {
-            case 'R':
-            case 'L':{
-                int shilft90 = value% 360;
-                shilft90 /= 90;
-                while(shilft90--) waypoint *= delta;
-                break;
-            }
-            case 'F':{
-                position += value * waypoint;
-                break;
-            }
-            default:{
-                waypoint += value * delta;
-                break;
-            }
-        }
-    }
-    return std::abs(std::real(position)) + std::abs(std::imag(position));
+    std::cout << "ans1: " << get_displacement(commands, start, direction, false) << std::endl;
+    std::cout << "ans1: " << get_displacement(commands, start, waypoint, true) << std::endl;
 }
 
 uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& commands,
-                                    std::complex<int> position,
-                                    std::complex<int> direction){
+                                             std::complex<int> position,
+                                             std::complex<int> direction,
+                                             bool waypoint){
     for(const auto& [command, value]: commands){
         auto itr = ctable.find(command);
         if(itr == ctable.end()) continue;
@@ -104,11 +83,12 @@ uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& com
                 break;
             }
             case 'F':{
-                position += value * delta * direction;
+                position += value * direction;
                 break;
             }
             default:{
-                position += value * delta;
+                if(waypoint) direction += value * delta;
+                else position += value * delta;
                 break;
             }
         }
