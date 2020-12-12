@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <numeric>
 #include <map>
+#include <complex>
+
 
 class Solution
 {
@@ -35,6 +37,14 @@ public:
 
 private:
     static void day12(const std::string& inputfile);
+    static uint32_t get_displacement(const std::vector<std::pair<char, int>>& commands,
+                                     std::complex<int> position,
+                                     std::complex<int> direction);
+    static uint32_t get_displacement_waypoint(const std::vector<std::pair<char, int>>& commands,
+                                              std::complex<int> waypoint,
+                                              std::complex<int> position,
+                                              std::complex<int> direction);
+
 
     static void day11(const std::string& inputfile);
     static size_t occupied_seats(const std::vector<std::string>& layout, bool adjacent, int max_neigbhour);

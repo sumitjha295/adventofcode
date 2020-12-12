@@ -11,7 +11,7 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const int current_day = 10;
+    const int current_day = 12;
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
 }
 
@@ -35,14 +35,62 @@ Solution::Solution()
 }
 
 void Solution::day12(const std::string& inputfile) {
-    std::vector<std::string> data;
+    std::vector<std::pair<char, int>> commands;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
-        std::string row;
-        iss >> row;
-        data.push_back(row);
+        char command;
+        int value;
+        iss >> command >> value;
+        commands.push_back({command, value});
         return true;
     });
+
+    std::complex<int> start(0, 0), direction(1, 0), waypoint(10, 1);
+    std::cout << "ans1: " << get_displacement(commands, start, direction) << std::endl;
+    std::cout << "ans1: " << get_displacement_waypoint(commands, waypoint, start, direction) << std::endl;
+}
+
+uint32_t Solution::get_displacement_waypoint(const std::vector<std::pair<char, int>>& commands,
+                                             std::complex<int> waypoint,
+                                             std::complex<int> position,
+                                             std::complex<int> direction){
+    for(const auto& [command, value]: commands){
+        if(command == 'N') waypoint += std::complex<int>(0, value);
+        else if(command == 'S') waypoint += std::complex<int>(0, -value);
+        else if(command == 'E') waypoint += std::complex<int>(value, 0);
+        else if(command == 'W') waypoint += std::complex<int>(-value, 0);
+        else if(command == 'R' || command == 'L') {
+            int shilft90 = value% 360;
+            shilft90 /= 90;
+            std::complex<int> arg = command == 'R' ? std::complex<int>(0, -1) : std::complex<int>(0, 1);
+            while(shilft90--) waypoint *= arg;
+        }
+        else if(command == 'F') {
+            position += (std::complex<int>(value, 0) * waypoint);
+        }
+    }
+    return std::abs(std::real(position)) + std::abs(std::imag(position));
+}
+
+uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& commands,
+                                    std::complex<int> position,
+                                    std::complex<int> direction){
+    for(const auto& [command, value]: commands){
+        if(command == 'N') position += std::complex<int>(0, value);
+        else if(command == 'S') position += std::complex<int>(0, -value);
+        else if(command == 'E') position += std::complex<int>(value, 0);
+        else if(command == 'W') position += std::complex<int>(-value, 0);
+        else if(command == 'R' || command == 'L') {
+            int shilft90 = value% 360;
+            shilft90 /= 90;
+            std::complex<int> arg = command == 'R' ? std::complex<int>(0, -1) : std::complex<int>(0, 1);
+            while(shilft90--) direction *= arg;
+        }
+        else if(command == 'F') {
+            position += (std::complex<int>(value, 0) * direction);
+        }
+    }
+    return std::abs(std::real(position)) + std::abs(std::imag(position));
 }
 
 void Solution::day11(const std::string& inputfile) {
@@ -654,7 +702,7 @@ void Solution::read_if(const std::string& filepath,
     std::ifstream infile(filepath);
     std::istream_iterator<Line> begin(infile), end;
     for(;begin != end; ++begin)
-        if(!handler(*begin, begin == end)) return;
+        if(!handler(*begin, infile.peek() == EOF)) return;
 }
 
 
