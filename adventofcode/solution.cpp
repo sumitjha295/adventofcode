@@ -13,6 +13,15 @@ namespace
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
     const int current_day = 12;
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
+    const std::unordered_map<char, std::complex<int>> ctable = {
+        {'N', std::complex<int>(0,1)},
+        {'S', std::complex<int>(0,-1)},
+        {'E', std::complex<int>(1,0)},
+        {'W', std::complex<int>(-1,0)},
+        {'F', std::complex<int>(1,0)},
+        {'R', std::complex<int>(0,-1)},
+        {'L', std::complex<int>(0,1)},
+    };
 }
 
 const std::vector<std::function<void(void)>> Solution::S_SOLUTIONS = {
@@ -55,18 +64,25 @@ uint32_t Solution::get_displacement_waypoint(const std::vector<std::pair<char, i
                                              std::complex<int> position,
                                              std::complex<int> direction){
     for(const auto& [command, value]: commands){
-        if(command == 'N') waypoint += std::complex<int>(0, value);
-        else if(command == 'S') waypoint += std::complex<int>(0, -value);
-        else if(command == 'E') waypoint += std::complex<int>(value, 0);
-        else if(command == 'W') waypoint += std::complex<int>(-value, 0);
-        else if(command == 'R' || command == 'L') {
-            int shilft90 = value% 360;
-            shilft90 /= 90;
-            std::complex<int> arg = command == 'R' ? std::complex<int>(0, -1) : std::complex<int>(0, 1);
-            while(shilft90--) waypoint *= arg;
-        }
-        else if(command == 'F') {
-            position += (std::complex<int>(value, 0) * waypoint);
+        auto itr = ctable.find(command);
+        if(itr == ctable.end()) continue;
+        const auto& [c, delta] = *itr;
+        switch (c) {
+            case 'R':
+            case 'L':{
+                int shilft90 = value% 360;
+                shilft90 /= 90;
+                while(shilft90--) waypoint *= delta;
+                break;
+            }
+            case 'F':{
+                position += value * waypoint;
+                break;
+            }
+            default:{
+                waypoint += value * delta;
+                break;
+            }
         }
     }
     return std::abs(std::real(position)) + std::abs(std::imag(position));
@@ -76,18 +92,25 @@ uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& com
                                     std::complex<int> position,
                                     std::complex<int> direction){
     for(const auto& [command, value]: commands){
-        if(command == 'N') position += std::complex<int>(0, value);
-        else if(command == 'S') position += std::complex<int>(0, -value);
-        else if(command == 'E') position += std::complex<int>(value, 0);
-        else if(command == 'W') position += std::complex<int>(-value, 0);
-        else if(command == 'R' || command == 'L') {
-            int shilft90 = value% 360;
-            shilft90 /= 90;
-            std::complex<int> arg = command == 'R' ? std::complex<int>(0, -1) : std::complex<int>(0, 1);
-            while(shilft90--) direction *= arg;
-        }
-        else if(command == 'F') {
-            position += (std::complex<int>(value, 0) * direction);
+        auto itr = ctable.find(command);
+        if(itr == ctable.end()) continue;
+        const auto& [c, delta] = *itr;
+        switch (c) {
+            case 'R':
+            case 'L':{
+                int shilft90 = value% 360;
+                shilft90 /= 90;
+                while(shilft90--) direction *= delta;
+                break;
+            }
+            case 'F':{
+                position += value * delta * direction;
+                break;
+            }
+            default:{
+                position += value * delta;
+                break;
+            }
         }
     }
     return std::abs(std::real(position)) + std::abs(std::imag(position));
@@ -126,7 +149,7 @@ size_t Solution::occupied_seats(const std::vector<std::string>& layout, bool adj
                 }
             }
         }
-        curr = next;
+        curr = std::move(next);
     }
     return count_seats(curr, '#');
 }
