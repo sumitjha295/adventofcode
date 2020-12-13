@@ -8,5 +8,5 @@
 #include "solution.hpp"
 
 int main(int argc, const char * argv[]) {
-    Solution::run(true);
+    Solution::run();
 }

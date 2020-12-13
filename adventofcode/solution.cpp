@@ -45,9 +45,60 @@ Solution::Solution()
 }
 
 void Solution::day13(const std::string& inputfile) {
+    int line_number  = 0;
+    int start_time = 0;
+    std::vector<int64_t> bus_ids;
     read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        if(line_number == 0) iss >> start_time;
+        else if(line_number == 1){
+            std::string bus_id;
+            while(std::getline(iss, bus_id, ',')){
+                uint64_t id = bus_id != "x" ? std::stoll(bus_id) : -1;
+                bus_ids.push_back(id);
+            }
+        }
+        ++line_number;
         return true;
     });
+
+    auto [id, time] = get_earliest_id(bus_ids, start_time);
+    int64_t ans1 = id *  (time - start_time);
+
+    std::cout << "ans1: " << ans1 << std::endl;
+    std::cout << "ans1: " << win_gold(bus_ids) << std::endl;
+}
+
+int64_t Solution::win_gold(const std::vector<int64_t>& ids) {
+    std::vector<std::pair<int64_t,int64_t>> mods;
+    for(int i = 0; i < ids.size(); ++i){
+        if(ids[i] == -1) continue;
+        int64_t mod = (ids[i]-i%ids[i])% ids[i];
+        mods.push_back({mod, ids[i]});
+    }
+    // reach the target faster
+    std::sort(mods.begin(), mods.end());
+    std::reverse(mods.begin(), mods.end());
+    //
+    int64_t inc  = 1, time = 0;
+    for(auto& [mod, id]: mods) {
+        while (time % id != mod) time+= inc;
+        inc *= id;
+    }
+    return time;
+}
+std::pair<int64_t, int64_t> Solution::get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time) {
+    int64_t earliest = LONG_LONG_MAX;
+    int64_t bus_id = -1;
+    for(int64_t id: ids) {
+        if(id == -1) continue;
+        int64_t next_time = earliest_time + (id - earliest_time%id);
+        if(earliest > next_time){
+            earliest = next_time;
+            bus_id = id;
+        }
+    }
+    return {bus_id, earliest};
 }
 
 void Solution::day12(const std::string& inputfile) {
@@ -63,7 +114,7 @@ void Solution::day12(const std::string& inputfile) {
 
     std::complex<int> start(0, 0), direction(1, 0), waypoint(10, 1);
     std::cout << "ans1: " << get_displacement(commands, start, direction, false) << std::endl;
-    std::cout << "ans1: " << get_displacement(commands, start, waypoint, true) << std::endl;
+    std::cout << "ans2: " << get_displacement(commands, start, waypoint, true) << std::endl;
 }
 
 uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& commands,

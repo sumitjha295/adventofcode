@@ -37,6 +37,8 @@ public:
 
 private:
     static void day13(const std::string& inputfile);
+    static std::pair<int64_t, int64_t> get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time);
+    static int64_t win_gold(const std::vector<int64_t>& ids);
 
     static void day12(const std::string& inputfile);
     static uint32_t get_displacement(const std::vector<std::pair<char, int>>& commands,
