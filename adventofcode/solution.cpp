@@ -74,29 +74,12 @@ void Solution::day13(const std::string& inputfile) {
 
 int64_t Solution::win_gold(const std::vector<int64_t>& ids) {
     int64_t inc  = 1, time = 0;
-    /*
-    // this works, however it can be optimized by sorting mod
     for(int i = 0; i < ids.size(); ++i){
         if(ids[i] == -1) continue;
         int64_t mod = ((-i%ids[i]) + ids[i])%ids[i]; //keeping -i%ids[i] positive
         while (time % ids[i] != mod) time+= inc;
         inc *= ids[i];
     }
-    */
-    // optimizing algorithm starts
-    std::priority_queue<std::pair<int64_t, int64_t>> mods;
-    for(int i = 0; i < ids.size(); ++i){
-        if(ids[i] == -1) continue;
-        int64_t mod = ((-i%ids[i]) + ids[i])%ids[i]; //keeping -i%ids[i] positive
-        mods.push({mod, ids[i]});
-    }
-
-    while(!mods.empty()){
-        auto [mod, id] = mods.top(); mods.pop();
-        while (time % id != mod) time+= inc;
-        inc *= id;
-    }
-    // optimizing algorithm ends
     return time;
 }
 std::pair<int64_t, int64_t> Solution::get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time) {
