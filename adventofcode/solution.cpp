@@ -38,11 +38,14 @@ const std::vector<std::function<void(void)>> Solution::S_SOLUTIONS = {
     std::bind(day11, resource_dir + "day11.txt"),
     std::bind(day12, resource_dir + "day12.txt"),
     std::bind(day13, resource_dir + "day13.txt"),
+    std::bind(day14, resource_dir + "day14.txt"),
 };
 
 Solution::Solution()
 {
 }
+
+void Solution::day14(const std::string& inputfile) {}
 
 void Solution::day13(const std::string& inputfile) {
     int line_number  = 0;
@@ -70,21 +73,30 @@ void Solution::day13(const std::string& inputfile) {
 }
 
 int64_t Solution::win_gold(const std::vector<int64_t>& ids) {
-    std::vector<std::pair<int64_t,int64_t>> mods;
+    int64_t inc  = 1, time = 0;
+    /*
+    // this works, however it can be optimized by sorting mod
     for(int i = 0; i < ids.size(); ++i){
         if(ids[i] == -1) continue;
-        int64_t mod = (ids[i]-i%ids[i])% ids[i];
-        mods.push_back({mod, ids[i]});
+        int64_t mod = ((-i%ids[i]) + ids[i])%ids[i]; //keeping -i%ids[i] positive
+        while (time % ids[i] != mod) time+= inc;
+        inc *= ids[i];
     }
-    // reach the target faster
-    std::sort(mods.begin(), mods.end());
-    std::reverse(mods.begin(), mods.end());
-    //
-    int64_t inc  = 1, time = 0;
-    for(auto& [mod, id]: mods) {
+    */
+    // optimizing algorithm starts
+    std::priority_queue<std::pair<int64_t, int64_t>> mods;
+    for(int i = 0; i < ids.size(); ++i){
+        if(ids[i] == -1) continue;
+        int64_t mod = ((-i%ids[i]) + ids[i])%ids[i]; //keeping -i%ids[i] positive
+        mods.push({mod, ids[i]});
+    }
+
+    while(!mods.empty()){
+        auto [mod, id] = mods.top(); mods.pop();
         while (time % id != mod) time+= inc;
         inc *= id;
     }
+    // optimizing algorithm ends
     return time;
 }
 std::pair<int64_t, int64_t> Solution::get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time) {

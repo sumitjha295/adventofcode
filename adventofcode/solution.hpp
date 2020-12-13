@@ -33,9 +33,11 @@ class Solution
 public:
 
     Solution();
-    static void run(bool all = false);
+    static void run(bool all = true);
 
 private:
+    static void day14(const std::string& inputfile);
+
     static void day13(const std::string& inputfile);
     static std::pair<int64_t, int64_t> get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time);
     static int64_t win_gold(const std::vector<int64_t>& ids);
