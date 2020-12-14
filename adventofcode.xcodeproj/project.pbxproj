@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		952E469E258754D20010761A /* day14.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E469D258754CB0010761A /* day14.txt */; };
 		956DFAEA2577ED2C006AFB79 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956DFAE92577ED2C006AFB79 /* main.cpp */; };
 		956DFAF42577EE8B006AFB79 /* solution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 956DFAF22577EE8B006AFB79 /* solution.cpp */; };
 		956DFAFD2577F2DF006AFB79 /* day1.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 956DFAFA2577F00A006AFB79 /* day1.txt */; };
@@ -31,6 +32,7 @@
 			dstPath = data;
 			dstSubfolderSpec = 16;
 			files = (
+				952E469E258754D20010761A /* day14.txt in CopyFiles */,
 				956DFB2D25861321006AFB79 /* day13.txt in CopyFiles */,
 				956DFB2A2583A54E006AFB79 /* day12.txt in CopyFiles */,
 				956DFB27258375FD006AFB79 /* day11.txt in CopyFiles */,
@@ -50,6 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		952E469D258754CB0010761A /* day14.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day14.txt; sourceTree = "<group>"; };
 		956DFAE62577ED2C006AFB79 /* adventofcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = adventofcode; sourceTree = BUILT_PRODUCTS_DIR; };
 		956DFAE92577ED2C006AFB79 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		956DFAF22577EE8B006AFB79 /* solution.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = solution.cpp; sourceTree = "<group>"; };
@@ -110,6 +113,7 @@
 		956DFAF92577F00A006AFB79 /* data */ = {
 			isa = PBXGroup;
 			children = (
+				952E469D258754CB0010761A /* day14.txt */,
 				956DFB2C2586131A006AFB79 /* day13.txt */,
 				956DFB292583A530006AFB79 /* day12.txt */,
 				956DFB26258375E6006AFB79 /* day11.txt */,

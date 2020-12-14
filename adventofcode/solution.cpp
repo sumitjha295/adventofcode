@@ -11,7 +11,7 @@ namespace
 {
     const std::string resource_dir = "data/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const int current_day = 13;
+    const int current_day = 14;
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
     const std::unordered_map<char, std::complex<int>> ctable = {
         {'N', {0,1}},
@@ -45,7 +45,68 @@ Solution::Solution()
 {
 }
 
-void Solution::day14(const std::string& inputfile) {}
+void Solution::day14(const std::string& inputfile) {
+    const std::string imask = "mask";
+    const std::string imem = "mem";
+    uint64_t and_mask = 0, or_mask = 0, floating_mask = 0;
+    std::unordered_map<uint64_t, uint64_t> address_map_v1, address_map_v2;
+    std::vector<uint64_t> floating;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        std::string info, value;
+        char dummy;
+        iss >> info >> dummy >> value;
+        if(info == imask){
+            and_mask = 0;
+            or_mask = 0;
+            floating.clear();
+            for(char m: value){
+                // preparing masks
+                and_mask <<= 1;
+                or_mask <<= 1;
+                floating_mask <<= 1;
+
+                if(floating.empty()) floating.push_back(0);
+                else for(uint64_t& f: floating)  f <<= 1;
+                
+                if(m == '0') and_mask |= 1;
+                else if(m == '1') or_mask |= 1;
+                else if(m == 'X') {
+                    // Only for //PART 2
+                    floating_mask |= 1;
+                    size_t size = floating.size();
+                    for(size_t i = 0; i < size; ++i){
+                        floating.push_back(floating[i]|1);
+                    }
+                }
+            }
+        }
+        else {
+            // updating data
+            uint64_t mem_add = std::stoull(info.substr(imem.size()+1, info.size()-imem.size()-2));
+            uint64_t mem_val = std::stoull(value);
+            //PART 1
+            address_map_v1[mem_add] = (mem_val | or_mask) & (~and_mask);
+            //PART 2
+            for(uint64_t mask:  floating){
+                mem_add &= (~floating_mask);
+                mem_add |= mask;
+                mem_add |= or_mask;
+                address_map_v2[mem_add] = mem_val;
+            }
+        }
+        return true;
+    });
+    
+    uint64_t sum1 = 0;
+    for(const auto& [address, value]: address_map_v1) sum1 += value;
+    
+    uint64_t sum2 = 0;
+    for(const auto& [address, value]: address_map_v2) sum2 += value;
+    
+    std::cout << "ans1: " << sum1 << std::endl;
+    std::cout << "ans2: " << sum2 << std::endl;
+}
 
 void Solution::day13(const std::string& inputfile) {
     int line_number  = 0;

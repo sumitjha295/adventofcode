@@ -33,7 +33,7 @@ class Solution
 public:
 
     Solution();
-    static void run(bool all = true);
+    static void run(bool all = false);
 
 private:
     static void day14(const std::string& inputfile);
