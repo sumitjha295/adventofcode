@@ -23,19 +23,20 @@
 #include <map>
 #include <complex>
 
+#include "ISolution.hpp"
 
-class Solution
+class Solution2020: public ISolution
 {
-    class Line : public std::string {};
-    friend std::istream& operator>>(std::istream& is, Line& line) {
-        return std::getline(is, line);
-    };
 public:
 
-    Solution();
-    static void run(bool all = false);
-
+    Solution2020();
+    virtual ~Solution2020();
+    virtual void run(int day = -1) override;
+    
 private:
+    static void day15();
+    static int find_nth_number(const std::vector<int>& numbers, int n);
+    
     static void day14(const std::string& inputfile);
 
     static void day13(const std::string& inputfile);
@@ -94,9 +95,4 @@ private:
     static std::pair<int64_t, int64_t> two_sum(const std::vector<int64_t>& data, int sum);
     static std::tuple<int64_t, int64_t,int64_t> three_sum(const std::vector<int64_t>& data, int sum);
     
-    
-    static void read_if(const std::string& filepath,
-                          const std::function<bool(std::string, bool)>& handler);
-    
-    static const std::vector<std::function<void(void)>> S_SOLUTIONS;
 };

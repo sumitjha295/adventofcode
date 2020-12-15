@@ -5,8 +5,8 @@
 //  Created by Sumit Jha on 02.12.20.
 //
 
-#include "solution.hpp"
+#include "ISolution.hpp"
 
 int main(int argc, const char * argv[]) {
-    Solution::run();
+    ISolution::solve(2020);
 }

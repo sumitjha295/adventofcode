@@ -5,13 +5,12 @@
 //  Created by Sumit Jha on 02.12.20.
 //
 
-#include "solution.hpp"
+#include "solution_2020.hpp"
 
 namespace
 {
-    const std::string resource_dir = "data/";
+    const std::string resource_dir = "data/2020/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
-    const int current_day = 14;
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
     const std::unordered_map<char, std::complex<int>> ctable = {
         {'N', {0,1}},
@@ -24,74 +23,106 @@ namespace
     };
 }
 
-const std::vector<std::function<void(void)>> Solution::S_SOLUTIONS = {
-    std::bind(day1, resource_dir + "day1.txt", 2020),
-    std::bind(day2, resource_dir + "day2.txt"),
-    std::bind(day3, resource_dir + "day3.txt"),
-    std::bind(day4, resource_dir + "day4.txt"),
-    std::bind(day5, resource_dir + "day5.txt"),
-    std::bind(day6, resource_dir + "day6.txt"),
-    std::bind(day7, resource_dir + "day7.txt", "shiny gold"),
-    std::bind(day8, resource_dir + "day8.txt"),
-    std::bind(day9, resource_dir + "day9.txt", 25),
-    std::bind(day10, resource_dir + "day10.txt"),
-    std::bind(day11, resource_dir + "day11.txt"),
-    std::bind(day12, resource_dir + "day12.txt"),
-    std::bind(day13, resource_dir + "day13.txt"),
-    std::bind(day14, resource_dir + "day14.txt"),
-};
-
-Solution::Solution()
-{
+Solution2020::Solution2020(){
+    m_solutions = {
+        std::bind(day1, resource_dir + "day1.txt", 2020),
+        std::bind(day2, resource_dir + "day2.txt"),
+        std::bind(day3, resource_dir + "day3.txt"),
+        std::bind(day4, resource_dir + "day4.txt"),
+        std::bind(day5, resource_dir + "day5.txt"),
+        std::bind(day6, resource_dir + "day6.txt"),
+        std::bind(day7, resource_dir + "day7.txt", "shiny gold"),
+        std::bind(day8, resource_dir + "day8.txt"),
+        std::bind(day9, resource_dir + "day9.txt", 25),
+        std::bind(day10, resource_dir + "day10.txt"),
+        std::bind(day11, resource_dir + "day11.txt"),
+        std::bind(day12, resource_dir + "day12.txt"),
+        std::bind(day13, resource_dir + "day13.txt"),
+        std::bind(day14, resource_dir + "day14.txt"),
+        std::bind(day15),
+    };
 }
 
-void Solution::day14(const std::string& inputfile) {
+
+Solution2020::~Solution2020(){}
+
+void Solution2020::run(int day){
+    ISolution::run(15);
+}
+
+void Solution2020::day15() {
+    std::cout << "ans1: " << find_nth_number({12,1,16,3,11,0}, 2020) << std::endl;
+    std::cout << "ans2: " << find_nth_number({12,1,16,3,11,0}, 30000000) << std::endl;
+}
+
+int Solution2020::find_nth_number(const std::vector<int>& nums, int n) {
+    std::unordered_map<int, int> imap;
+    int last_spoken = 0, next_spoken = 0;
+    int cturn = 1;
+    for(;cturn < nums.size(); ++cturn){
+        last_spoken = nums[cturn];
+        imap[nums[cturn-1]] = cturn;
+    }
+
+    while(cturn < n){
+        auto itr = imap.find(last_spoken);
+        if(itr != imap.end()){
+            auto& [num, turn] = *itr;
+            next_spoken = cturn - turn;
+        }
+        else{
+            next_spoken = 0;
+        }
+        imap[last_spoken] = cturn;
+        last_spoken = next_spoken;
+        ++cturn;
+    }
+    return last_spoken;
+}
+void Solution2020::day14(const std::string& inputfile) {
     const std::string imask = "mask";
-    const std::string imem = "mem";
-    uint64_t and_mask = 0, or_mask = 0, floating_mask = 0;
+    const std::string imem = "mem[";
+    uint64_t unset_mask = 0, set_mask = 0, floating_mask = 0;
     std::unordered_map<uint64_t, uint64_t> address_map_v1, address_map_v2;
-    std::vector<uint64_t> floating;
+    std::vector<uint64_t> address_masks;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
         std::string info, value;
         char dummy;
         iss >> info >> dummy >> value;
         if(info == imask){
-            and_mask = 0;
-            or_mask = 0;
-            floating.clear();
+            set_mask = 0; unset_mask = 0;
+            address_masks.clear();
             for(char m: value){
-                // preparing masks
-                and_mask <<= 1;
-                or_mask <<= 1;
+                // Preparing masks
+                set_mask <<= 1;
+                unset_mask <<= 1;
                 floating_mask <<= 1;
+                if(address_masks.empty()) address_masks.push_back(0);
+                else for(uint64_t& address: address_masks)  address <<= 1;
 
-                if(floating.empty()) floating.push_back(0);
-                else for(uint64_t& f: floating)  f <<= 1;
-                
-                if(m == '0') and_mask |= 1;
-                else if(m == '1') or_mask |= 1;
+                // Updating masks
+                if(m == '0') unset_mask |= 1;
+                else if(m == '1') set_mask |= 1;
                 else if(m == 'X') {
-                    // Only for //PART 2
                     floating_mask |= 1;
-                    size_t size = floating.size();
+                    size_t size = address_masks.size();
                     for(size_t i = 0; i < size; ++i){
-                        floating.push_back(floating[i]|1);
+                        address_masks.push_back(address_masks[i]|1);
                     }
                 }
             }
         }
         else {
-            // updating data
-            uint64_t mem_add = std::stoull(info.substr(imem.size()+1, info.size()-imem.size()-2));
+            // Updating data
+            uint64_t mem_add = std::stoull(info.substr(imem.size()));
             uint64_t mem_val = std::stoull(value);
             //PART 1
-            address_map_v1[mem_add] = (mem_val | or_mask) & (~and_mask);
+            address_map_v1[mem_add] = (mem_val | set_mask) & (~unset_mask);
             //PART 2
-            for(uint64_t mask:  floating){
+            for(uint64_t address_mask:  address_masks){
                 mem_add &= (~floating_mask);
-                mem_add |= mask;
-                mem_add |= or_mask;
+                mem_add |= (address_mask | set_mask);
                 address_map_v2[mem_add] = mem_val;
             }
         }
@@ -108,7 +139,7 @@ void Solution::day14(const std::string& inputfile) {
     std::cout << "ans2: " << sum2 << std::endl;
 }
 
-void Solution::day13(const std::string& inputfile) {
+void Solution2020::day13(const std::string& inputfile) {
     int line_number  = 0;
     int start_time = 0;
     std::vector<int64_t> bus_ids;
@@ -133,7 +164,7 @@ void Solution::day13(const std::string& inputfile) {
     std::cout << "ans1: " << win_gold(bus_ids) << std::endl;
 }
 
-int64_t Solution::win_gold(const std::vector<int64_t>& ids) {
+int64_t Solution2020::win_gold(const std::vector<int64_t>& ids) {
     int64_t inc  = 1, time = 0;
     for(int i = 0; i < ids.size(); ++i){
         if(ids[i] == -1) continue;
@@ -143,7 +174,7 @@ int64_t Solution::win_gold(const std::vector<int64_t>& ids) {
     }
     return time;
 }
-std::pair<int64_t, int64_t> Solution::get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time) {
+std::pair<int64_t, int64_t> Solution2020::get_earliest_id(const std::vector<int64_t>& ids, int64_t earliest_time) {
     int64_t earliest = LONG_LONG_MAX;
     int64_t bus_id = -1;
     for(int64_t id: ids) {
@@ -157,7 +188,7 @@ std::pair<int64_t, int64_t> Solution::get_earliest_id(const std::vector<int64_t>
     return {bus_id, earliest};
 }
 
-void Solution::day12(const std::string& inputfile) {
+void Solution2020::day12(const std::string& inputfile) {
     std::vector<std::pair<char, int>> commands;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
@@ -173,7 +204,7 @@ void Solution::day12(const std::string& inputfile) {
     std::cout << "ans2: " << get_displacement(commands, start, waypoint, true) << std::endl;
 }
 
-uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& commands,
+uint32_t Solution2020::get_displacement(const std::vector<std::pair<char, int>>& commands,
                                              std::complex<int> position,
                                              std::complex<int> direction,
                                              bool waypoint){
@@ -203,7 +234,7 @@ uint32_t Solution::get_displacement(const std::vector<std::pair<char, int>>& com
     return std::abs(std::real(position)) + std::abs(std::imag(position));
 }
 
-void Solution::day11(const std::string& inputfile) {
+void Solution2020::day11(const std::string& inputfile) {
     std::vector<std::string> layout;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
@@ -216,7 +247,7 @@ void Solution::day11(const std::string& inputfile) {
     std::cout << "ans2: " << occupied_seats(layout, false, 5) << std::endl;
 }
 
-size_t Solution::occupied_seats(const std::vector<std::string>& layout, bool adjacent, int max_neigbhour){
+size_t Solution2020::occupied_seats(const std::vector<std::string>& layout, bool adjacent, int max_neigbhour){
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     std::vector<std::string> curr = layout;
@@ -241,7 +272,7 @@ size_t Solution::occupied_seats(const std::vector<std::string>& layout, bool adj
     return count_seats(curr, '#');
 }
 
-size_t Solution::count_seats(const std::vector<std::string>& layout, char seat){
+size_t Solution2020::count_seats(const std::vector<std::string>& layout, char seat){
     size_t occupied_seats = 0;
     for(const auto& row: layout){
         occupied_seats += std::count_if(row.begin(), row.end(), [seat](char c){ return c == seat;});
@@ -249,7 +280,7 @@ size_t Solution::count_seats(const std::vector<std::string>& layout, char seat){
     return occupied_seats;
 }
 
-size_t Solution::count_neigbhour(const std::vector<std::string>& layout, size_t x, size_t y, char seat,  bool adjacent){
+size_t Solution2020::count_neigbhour(const std::vector<std::string>& layout, size_t x, size_t y, char seat,  bool adjacent){
     size_t m = layout.size();
     size_t n = m ? layout[0].size(): 0;
     size_t cnt = 0;
@@ -270,7 +301,7 @@ size_t Solution::count_neigbhour(const std::vector<std::string>& layout, size_t 
     return cnt;
 }
 
-void Solution::day10(const std::string& inputfile) {
+void Solution2020::day10(const std::string& inputfile) {
     int max_jolt = INT_MIN;
     std::unordered_set<int> data;
     read_if(inputfile, [&](const std::string& line, bool isLast){
@@ -295,7 +326,7 @@ void Solution::day10(const std::string& inputfile) {
     std::cout<< "ans2 :" <<  ans2 << std::endl;
 }
 
-std::pair<uint64_t, uint64_t> Solution::steps_one_three(const std::unordered_set<int>& data, int first, int last) {
+std::pair<uint64_t, uint64_t> Solution2020::steps_one_three(const std::unordered_set<int>& data, int first, int last) {
     // Time:  O(n) n n = last-first
     // Space: O(1)
     uint64_t ones = 0, threes = 0;
@@ -316,7 +347,7 @@ std::pair<uint64_t, uint64_t> Solution::steps_one_three(const std::unordered_set
     return {ones, threes};
 }
 
-uint64_t Solution::path_count(const std::unordered_set<int>& data, int first, int last) {
+uint64_t Solution2020::path_count(const std::unordered_set<int>& data, int first, int last) {
     // Time:  O(n) n = last-first
     // Space: O(n)
     std::unordered_map<int, uint64_t> paths = {{0,1}};
@@ -331,7 +362,7 @@ uint64_t Solution::path_count(const std::unordered_set<int>& data, int first, in
     return paths[last];
 }
 
-void Solution::day9(const std::string& inputfile, size_t preamble_size) {
+void Solution2020::day9(const std::string& inputfile, size_t preamble_size) {
     std::vector<int64_t> data;
     int64_t ans1 = 0, ans2 = 0;
     // // PART 1
@@ -391,7 +422,7 @@ void Solution::day9(const std::string& inputfile, size_t preamble_size) {
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day8(const std::string& inputfile) {
+void Solution2020::day8(const std::string& inputfile) {
     std::vector<std::pair<std::string, int>> instructions;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
@@ -405,7 +436,7 @@ void Solution::day8(const std::string& inputfile) {
 }
 
 
-void Solution::fixCycle(std::vector<std::pair<std::string, int>>& instructions) {
+void Solution2020::fixCycle(std::vector<std::pair<std::string, int>>& instructions) {
     std::unordered_set<int> forward_visited;
     int ans1 = -1, ans2=-1;
     execute(instructions, [&](auto arg){
@@ -454,7 +485,7 @@ void Solution::fixCycle(std::vector<std::pair<std::string, int>>& instructions) 
     std::cout<< "ans2 :" << ans2 <<  std::endl;
 }
 
-void Solution::execute(const std::vector<std::pair<std::string, int>> &instructions,
+void Solution2020::execute(const std::vector<std::pair<std::string, int>> &instructions,
                        const std::function<void(std::pair<int, int>)>& handler) {
     int acc = 0, i = 0;
     std::unordered_set<int> used;
@@ -471,7 +502,7 @@ void Solution::execute(const std::vector<std::pair<std::string, int>> &instructi
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day7(const std::string& inputfile, const std::string& target) {
+void Solution2020::day7(const std::string& inputfile, const std::string& target) {
     std::unordered_map<std::string, std::unordered_map<std::string, int>> forward_adj;
     std::unordered_map<std::string, std::unordered_set<std::string>> backward_adj;
     read_if(inputfile, [&](const std::string& line, bool isLast){
@@ -493,7 +524,7 @@ void Solution::day7(const std::string& inputfile, const std::string& target) {
     std::cout<< "ans2 :" << children(forward_adj, target)  << std::endl;
 }
 
-size_t Solution::dependencies(const std::unordered_map<std::string, std::unordered_set<std::string>> &adj,
+size_t Solution2020::dependencies(const std::unordered_map<std::string, std::unordered_set<std::string>> &adj,
                               const std::string &target) {
     std::unordered_set<std::string> visited;
     std::stack<std::string> st;
@@ -510,7 +541,7 @@ size_t Solution::dependencies(const std::unordered_map<std::string, std::unorder
     return visited.size()-1;
 }
 
-size_t Solution::children(const std::unordered_map<std::string,std::unordered_map<std::string, int> >& adj,
+size_t Solution2020::children(const std::unordered_map<std::string,std::unordered_map<std::string, int> >& adj,
                           const std::string& u) {
     auto itr = adj.find(u);
     if(itr == adj.end()) return 0;
@@ -524,7 +555,7 @@ size_t Solution::children(const std::unordered_map<std::string,std::unordered_ma
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day6(const std::string& inputfile) {
+void Solution2020::day6(const std::string& inputfile) {
     size_t res1 = 0;
     size_t res2 = 0;
     std::unordered_map<char, size_t> tmp;
@@ -552,7 +583,7 @@ void Solution::day6(const std::string& inputfile) {
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day5(const std::string& inputfile) {
+void Solution2020::day5(const std::string& inputfile) {
     int idMax = INT_MIN;
     const size_t ROW_SIZE = 7;
     const size_t COL_SIZE = 3;
@@ -582,7 +613,7 @@ void Solution::day5(const std::string& inputfile) {
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day4(const std::string& inputfile) {
+void Solution2020::day4(const std::string& inputfile) {
     size_t res1 = 0;
     size_t res2 = 0;
     const std::unordered_map<std::string, std::function<bool(std::string)>> validators = {
@@ -616,7 +647,7 @@ void Solution::day4(const std::string& inputfile) {
     std::cout<< "ans2 :" << res2 << std::endl;
 }
 
-int Solution::strToInt(const std::string &str, char hiBit) {
+int Solution2020::strToInt(const std::string &str, char hiBit) {
     int p = 1, res = 0;
     for(auto it = str.rbegin(); it != str.rend(); ++it,  p <<= 1){
         res += (*it == hiBit) * p;
@@ -624,7 +655,7 @@ int Solution::strToInt(const std::string &str, char hiBit) {
     return res;
 }
 
-bool Solution::isValidYear(const std::string& arg, int yMin, int yMax) {
+bool Solution2020::isValidYear(const std::string& arg, int yMin, int yMax) {
     if (arg.size() != 4) return false;
     
     std::istringstream iss(arg);
@@ -633,7 +664,7 @@ bool Solution::isValidYear(const std::string& arg, int yMin, int yMax) {
     return isBetween(val, yMin, yMax);
 }
 
-bool Solution::isValidHeight(const std::string &arg, int cMin, int cMax, int iMin, int iMax) {
+bool Solution2020::isValidHeight(const std::string &arg, int cMin, int cMax, int iMin, int iMax) {
     if(arg.size() > 2){
         std::istringstream iss(arg);
         int val;
@@ -645,21 +676,21 @@ bool Solution::isValidHeight(const std::string &arg, int cMin, int cMax, int iMi
     return false;
 }
 
-bool Solution::isValidPID(const std::string &arg) {
+bool Solution2020::isValidPID(const std::string &arg) {
     if(arg.size() != 9) return false;
     return std::find_if_not(arg.begin(),
                              arg.end(),
                              [](char c){ return std::isdigit(c);}) == arg.end();
 }
 
-bool Solution::isValidEyeColor(const std::string &arg, const std::unordered_set<std::string>& eColors) {
+bool Solution2020::isValidEyeColor(const std::string &arg, const std::unordered_set<std::string>& eColors) {
     std::istringstream iss(arg);
     std::string val;
     iss >> val;
     return eColors.find(val) != eColors.end();
 }
 
-bool Solution::isValidHairColor(const std::string &arg) {
+bool Solution2020::isValidHairColor(const std::string &arg) {
     if(arg.size() != 7) return false;
     std::istringstream iss(arg);
     std::string val;
@@ -671,11 +702,11 @@ bool Solution::isValidHairColor(const std::string &arg) {
                              [](char c){ return std::isxdigit(c);}) == val.end();
 }
 
-bool Solution::isBetween(int x, int a, int b){
+bool Solution2020::isBetween(int x, int a, int b){
     return x >= a && x <= b;
 }
 
-bool Solution::isOkay(const std::unordered_map<std::string, std::function<bool (std::string)> > &validators,
+bool Solution2020::isOkay(const std::unordered_map<std::string, std::function<bool (std::string)> > &validators,
                       const std::unordered_map<std::string, std::string> &data) {
     if(validators.size() != data.size())  return false;
     
@@ -688,7 +719,7 @@ bool Solution::isOkay(const std::unordered_map<std::string, std::function<bool (
 
 // Time:  O(n)
 // Space: O(n)
-void Solution::day3(const std::string& inputfile) {
+void Solution2020::day3(const std::string& inputfile) {
     const std::vector<std::pair<uint64_t, uint64_t>> moves = {{1,1},{3,1},{5,1},{7,1},{1,2}};
     std::vector<uint32_t> trees(moves.size());
     std::vector<uint32_t> pos(moves.size());
@@ -714,7 +745,7 @@ void Solution::day3(const std::string& inputfile) {
 
 // Time:  O(n)
 // Space: O(1)
-void Solution::day2(const std::string& inputfile) {
+void Solution2020::day2(const std::string& inputfile) {
     size_t res1 = 0;
     size_t res2 = 0;
     read_if(inputfile, [&](const std::string& line, bool isLast){
@@ -735,7 +766,7 @@ void Solution::day2(const std::string& inputfile) {
     std::cout<< "ans2: " << res2 << std::endl;
 }
 
-void Solution::day1(const std::string& inputfile, int arg1)
+void Solution2020::day1(const std::string& inputfile, int arg1)
 {
     //collect data
     std::vector<int64_t> data;
@@ -756,7 +787,7 @@ void Solution::day1(const std::string& inputfile, int arg1)
 
 // Time:  O(n)
 // Space: O(n)
-std::pair<int64_t, int64_t>  Solution::two_sum(const std::vector<int64_t>& data, int sum) {
+std::pair<int64_t, int64_t>  Solution2020::two_sum(const std::vector<int64_t>& data, int sum) {
     std::unordered_set<int64_t> cache;
     for(int64_t num: data){
         if(cache.find(sum-num) != cache.end()) return {num, sum-num};
@@ -768,7 +799,7 @@ std::pair<int64_t, int64_t>  Solution::two_sum(const std::vector<int64_t>& data,
 
 // Time:  O(n*n)
 // Space: O(n)
-std::tuple<int64_t, int64_t,int64_t> Solution::three_sum(const std::vector<int64_t>& data, int sum){
+std::tuple<int64_t, int64_t,int64_t> Solution2020::three_sum(const std::vector<int64_t>& data, int sum){
     std::unordered_map<size_t, int64_t> cache;
     for(size_t i = 0; i < data.size(); ++i) cache[data[i]] = i;
 
@@ -784,36 +815,6 @@ std::tuple<int64_t, int64_t,int64_t> Solution::three_sum(const std::vector<int64
     return {0,0,0};
 }
 
-void Solution::run(bool all) {
-    std::cout<< "-------Started-----" << std::endl;
-    if(all){
-        int i = 0;
-        for(const auto& solution : S_SOLUTIONS) {
-            std::cout<< "-----day " << ++i << "-----" << std::endl << std::endl;
-            solution();
-            std::cout<< std::endl;
-        }
-    }
-    else {
-        if(current_day > 0 && current_day <= S_SOLUTIONS.size()){
-            const auto& solution = S_SOLUTIONS[current_day-1];
-            std::cout<< "-----day " << current_day << "-----" << std::endl << std::endl;
-            solution();
-            std::cout<< std::endl;
-        }
-    }
-    std::cout<< "-------Finished-----" << std::endl;
-
-}
-
-
-void Solution::read_if(const std::string& filepath,
-                       const std::function<bool(std::string, bool)>& handler){
-    std::ifstream infile(filepath);
-    std::istream_iterator<Line> begin(infile), end;
-    for(;begin != end; ++begin)
-        if(!handler(*begin, infile.peek() == EOF)) return;
-}
 
 
 
