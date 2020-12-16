@@ -34,6 +34,8 @@ public:
     virtual void run(int day = -1) override;
     
 private:
+    static void day16(const std::string& inputfile);
+    
     static void day15();
     static int find_nth_number(const std::vector<int>& numbers, int n);
     

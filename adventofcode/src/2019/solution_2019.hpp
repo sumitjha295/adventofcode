@@ -34,8 +34,11 @@ public:
     virtual ~Solution2019();
     
 private:
-    static void day1(const std::string& inputfile);
-    static void day2(const std::string& inputfile);
+    static void day4(const std::string& range_string);
+    static void day3(const std::string& inputfile);
     
-    static const std::vector<std::function<void(void)>> S_SOLUTIONS;
+    static void day2(const std::string& inputfile);
+    static int execute_opcode(std::vector<int> opcodes, int val1, int val2);
+
+    static void day1(const std::string& inputfile);
 };

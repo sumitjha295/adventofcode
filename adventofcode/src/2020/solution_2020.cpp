@@ -40,6 +40,7 @@ Solution2020::Solution2020(){
         std::bind(day13, resource_dir + "day13.txt"),
         std::bind(day14, resource_dir + "day14.txt"),
         std::bind(day15),
+        std::bind(day16, resource_dir + "day16.txt"),
     };
 }
 
@@ -47,7 +48,116 @@ Solution2020::Solution2020(){
 Solution2020::~Solution2020(){}
 
 void Solution2020::run(int day){
-    ISolution::run(15);
+    ISolution::run(16);
+}
+
+void Solution2020::day16(const std::string& inputfile) {
+    
+    std::vector<std::vector<int>> tickets;
+    std::vector<int> myticket;
+    std::vector<std::function<bool(int)>> validators;
+    std::vector<std::string> types;
+    int data_type = 0;
+    int ans1 = 0;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        if(line.empty()) ++data_type;
+        else{
+            if(data_type == 0){// collect validators
+                std::string type, or_str;
+                size_t pos = line.find(':');
+                type = line.substr(0, pos);
+                std::istringstream iss(line.substr(pos+1));
+                char _str;
+                int a1, b1, a2, b2;
+                iss >> a1 >> _str >> b1 >> or_str >> a2 >> _str >> b2;
+                validators.push_back([a1, b1, a2, b2](int x){
+                    return  (x >= a1 && x <= b1) || (x >= a2 && x <= b2);
+                });
+                types.push_back(type);
+            }
+            else if(data_type == 1){ // collect my ticket
+                if(std::isdigit(line[0])){
+                    std::istringstream iss(line);
+                    std::string x;
+                    std::vector<int> ticket;
+                    while(getline(iss, x, ',')) ticket.push_back(std::stoi(x));
+                    tickets.push_back(ticket);
+                    myticket = std::move(ticket);
+                }
+            }
+            else if(data_type == 2){ // collect my nearby
+                if(std::isdigit(line[0])){
+                    std::istringstream iss(line);
+                    std::string x;
+                    std::vector<int> ticket;
+                    while(getline(iss, x, ',')) ticket.push_back(std::stoi(x));
+                    
+                    int valid_row = true;
+                    for(auto& val: ticket){
+                        int valid_count = 0;
+                        for(const auto&validator: validators){
+                            valid_count += validator(val);
+                        }
+                        if(valid_count == 0) {
+                            //PART 1
+                            ans1 += val;
+                            valid_row = false;
+                        }
+                    }
+                    if(valid_row) tickets.push_back(std::move(ticket)); // collecting only valid tickets
+                }
+            }
+        }
+        return true;
+    });
+    
+    //PART 2
+    std::unordered_map<size_t, std::unordered_set<size_t>> all_possibilites;
+    std::unordered_map<size_t, size_t> solutions;
+    std::unordered_set<size_t> initial_possibility;
+    for(size_t i = 0; i < validators.size(); ++i) initial_possibility.insert(i);
+    for(size_t i = 0; i < validators.size(); ++i) all_possibilites[i] = initial_possibility;
+    
+    while(!all_possibilites.empty()){
+        for(auto& ticket: tickets){
+            for(size_t j = 0; j < ticket.size(); ++j){
+                // If already found solution then skip
+                if(!all_possibilites.count(j)) continue;
+                
+                // Eliminate columns that do not are not valid or
+                // already present in solutions
+                auto curr_possibilities = all_possibilites[j];
+                for(auto& column: all_possibilites[j]){
+                    if(!validators[column](ticket[j]) || solutions.count(column)){
+                        curr_possibilities.erase(column);
+                    }
+                }
+                // If there is only possible column left update solutions and
+                // erase the left column from all_possibilites
+                // else continue for the next round
+                if(curr_possibilities.size() == 1) {
+                    solutions[*curr_possibilities.begin()] = j;
+                    all_possibilites.erase(j);
+                }
+                else{
+                    all_possibilites[j] = curr_possibilities;
+                }
+            }
+        }
+    }
+    
+    // Finally show the product of columns that starts
+    // with departure
+    int64_t ans2 = 1;
+    for(auto& [idx, col]: solutions){
+        std::string name = types[idx];
+        if(name.find("departure") != std::string::npos){
+            ans2 *= myticket[col];
+        }
+    }
+    std::cout << "ans1: " << ans1 << std::endl;
+    std::cout << "ans2: " << ans2 << std::endl;
+
 }
 
 void Solution2020::day15() {
