@@ -256,49 +256,40 @@ void Solution2020::day16(const std::string& inputfile) {
         }
         return true;
     });
-    //PART 2
+    //PART 2 Solution using bitmasks
     // Helper functiont to find index of highest bit 00001000->3
-    auto get_index = [](size_t val) {
+    auto get_index = [](uint32_t val) {
         int row = 0;
         while(val >>= 1) ++row;
         return row;
     };
 
     // prepare masks
-    std::unordered_map<size_t, size_t> all_possibilites;
-    std::unordered_map<size_t, size_t> solutions;
-    size_t initial_possibility = (1 <<validators.size()) -1; // all hight bits
-    for(size_t i = 0; i < validators.size(); ++i) all_possibilites[i] = initial_possibility;
+    uint32_t all_high = (1 <<validators.size()) -1; // all hight bits, meaning there are all possibile solutions
+    std::vector<uint32_t> masks(validators.size(), all_high);
+    std::unordered_map<uint32_t, uint32_t> solutions;
     for(auto& ticket: tickets){
         for(size_t j = 0; j < ticket.size(); ++j){
             for(int k = 0; k < validators.size(); ++k){
-                if(!validators[k](ticket[j])) all_possibilites[j] &= (~(1<<k));
+                if(!validators[k](ticket[j])) masks[j] &= (~(1<<k));  // Unset bit that are not possible
             }
         }
     }
 
     // start searching
-    size_t found = 0;
-    while(!all_possibilites.empty()){
-        for(auto& ticket: tickets){
-            for(size_t j = 0; j < ticket.size(); ++j){
-                // If already found solution then skip
-                if(!all_possibilites.count(j)) continue;
-                // Eliminate columns that are not valid or
-                // already present in solutions
-                all_possibilites[j] &= ~found;
-                // If there is only possible column left update solutions and
-                // erase the left column from all_possibilites
-                // else continue for the next round
-                if((all_possibilites[j]&(all_possibilites[j]-1)) == 0) {
-                    found |= all_possibilites[j];
-                    solutions[get_index(all_possibilites[j])] = j;
-                    all_possibilites.erase(j);
-                }
+    while(all_high){
+        for(uint32_t j = 0; j < masks.size(); ++j){
+            // Unset bit if already found
+            masks[j] &= all_high;
+            // if only one bit is high, row found.
+            // Unset the corresponding bit
+            if(masks[j] && !(masks[j]&(masks[j]-1))) {
+                all_high &= ~masks[j];
+                solutions[get_index(masks[j])] = j;
             }
         }
     }
-    //PART 2
+    //PART 2 Solution using sets
     /*
     std::unordered_map<size_t, std::unordered_set<size_t>> all_possibilites;
     std::unordered_map<size_t, size_t> solutions;
