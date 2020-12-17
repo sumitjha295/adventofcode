@@ -35,8 +35,8 @@ public:
     
 private:
     static void day17(const std::string& inputfile);
-    static void solve3d(const std::string& inputfile);
-    static void solve4d(const std::string& inputfile);
+    static int solve3d(const std::vector<std::string>& input_plane, int nCycle);
+    static int solve4d(const std::vector<std::string>& input_plane, int nCycle);
     static int count_neighbours(const std::vector<std::vector<std::string>>& cube, int x, int y, int z);
     static int count_neighbours(const std::vector<std::vector<std::vector<std::string>>>& dem, int x, int y, int z, int w);
     

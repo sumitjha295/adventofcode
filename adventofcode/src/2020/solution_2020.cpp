@@ -60,13 +60,7 @@ void Solution2020::run(int day){
 }
 
 void Solution2020::day17(const std::string& inputfile) {
-    solve3d(inputfile);
-    solve4d(inputfile);
-}
-
-void Solution2020::solve4d(const std::string& inputfile) {
     std::vector<std::string> input_plane;
-    const int nCycle = 6;
     read_if(inputfile, [&](const std::string& line, bool isLast){
         std::istringstream iss(line);
         std::string input;
@@ -74,7 +68,11 @@ void Solution2020::solve4d(const std::string& inputfile) {
         input_plane.push_back(input);
         return true;
     });
-   
+    std::cout << "ans1: " << solve3d(input_plane, 6) << std::endl;
+    std::cout << "ans1: " << solve4d(input_plane, 6) << std::endl;
+}
+
+int Solution2020::solve4d(const std::vector<std::string>& input_plane, int nCycle) {
     std::string inactive_row(2*nCycle + input_plane[0].size(),'.');
     std::vector<std::string> plane, inactive_plane(2*nCycle + input_plane.size(), inactive_row);
     std::vector<std::vector<std::string>> inactive_cude(2*nCycle+1, inactive_plane);
@@ -89,8 +87,10 @@ void Solution2020::solve4d(const std::string& inputfile) {
     size_t n = m ? dem[0].size() : 0;
     size_t o = n ? dem[0][0].size() : 0;
     size_t p = o ? dem[0][0][0].size() : 0;
+    int ans = 0;
     for(int i = 0; i < nCycle; ++i){
         auto curr = dem;
+        ans = 0;
         for(int i = 0; i < m; ++i){
             for(int j = 0; j < n; ++j){
                 for(int k = 0; k < o; ++k){
@@ -100,22 +100,15 @@ void Solution2020::solve4d(const std::string& inputfile) {
                             curr[i][j][k][l] = (cnt == 2 || cnt == 3) ? '#' : '.';
                         }
                         else  curr[i][j][k][l] =  cnt == 3 ? '#' : '.';
+
+                        ans += curr[i][j][k][l] == '#';
                     }
                 }
             }
         }
         dem = std::move(curr);
     }
-    
-    int ans = 0;
-    for(auto& cube: dem){
-        for(auto& plane: cube){
-            for(auto& row: plane){
-                ans += std::count_if(row.begin(),row.end(), [](char c) {return c == '#';});
-            }
-        }
-    }
-    std::cout << "ans2: " << ans << std::endl;
+    return ans;
 }
 
 int Solution2020::count_neighbours(const std::vector<std::vector<std::vector<std::string>>>& dem,
@@ -146,17 +139,7 @@ int Solution2020::count_neighbours(const std::vector<std::vector<std::vector<std
     return cnt;
 }
 
-void Solution2020::solve3d(const std::string& inputfile) {
-    std::vector<std::string> input_plane;
-    const int nCycle = 6;
-    read_if(inputfile, [&](const std::string& line, bool isLast){
-        std::istringstream iss(line);
-        std::string input;
-        iss >> input;
-        input_plane.push_back(input);
-        return true;
-    });
-
+int Solution2020::solve3d(const std::vector<std::string>& input_plane, int nCycle) {
     std::string inactive_row(2*nCycle + input_plane[0].size(),'.');
     std::vector<std::string> plane, inactive_plane(2*nCycle + input_plane.size(), inactive_row);
     std::vector<std::vector<std::string>> cube(2*nCycle+1, inactive_plane);
@@ -169,8 +152,10 @@ void Solution2020::solve3d(const std::string& inputfile) {
     size_t m = cube.size();
     size_t n = m ? cube[0].size() : 0;
     size_t o = n ? cube[0][0].size() : 0;
+    int ans = 0;
     for(int i = 0; i < nCycle; ++i){
         auto curr = cube;
+        ans = 0;
         for(int i = 0; i < m; ++i){
             for(int j = 0; j < n; ++j){
                 for(int k = 0; k < o; ++k){
@@ -179,19 +164,14 @@ void Solution2020::solve3d(const std::string& inputfile) {
                         curr[i][j][k] = (cnt == 2 || cnt == 3) ? '#' : '.';
                     }
                     else  curr[i][j][k] =  cnt == 3 ? '#' : '.';
+                    
+                    ans += curr[i][j][k] == '#';
                 }
             }
         }
         cube = std::move(curr);
     }
-
-    int ans1 = 0;
-    for(auto& plane: cube){
-        for(auto& row: plane){
-            ans1 += std::count_if(row.begin(),row.end(), [](char c) {return c == '#';});
-        }
-    }
-    std::cout << "ans1: " << ans1 << std::endl;
+    return ans;
 }
 
 int Solution2020::count_neighbours(const std::vector<std::vector<std::string>>& cube,
