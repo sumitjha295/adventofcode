@@ -9,6 +9,13 @@
 
 namespace
 {
+    struct tuple_hash {
+        inline size_t operator()(const std::tuple<int, int, int> &v) const {
+            std::hash<int> int_hasher;
+            const auto& [x,y,z] = v;
+            return int_hasher(x^y^z);
+        }
+    };
     const std::string resource_dir = "data/2020/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
@@ -41,6 +48,7 @@ Solution2020::Solution2020(){
         std::bind(day14, resource_dir + "day14.txt"),
         std::bind(day15),
         std::bind(day16, resource_dir + "day16.txt"),
+        std::bind(day17, resource_dir + "day17.txt"),
     };
 }
 
@@ -48,11 +56,169 @@ Solution2020::Solution2020(){
 Solution2020::~Solution2020(){}
 
 void Solution2020::run(int day){
-    ISolution::run(16);
+    ISolution::run(17);
+}
+
+void Solution2020::day17(const std::string& inputfile) {
+    solve3d(inputfile);
+    solve4d(inputfile);
+}
+
+void Solution2020::solve4d(const std::string& inputfile) {
+    std::vector<std::string> input_plane;
+    const int nCycle = 6;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        std::string input;
+        iss >> input;
+        input_plane.push_back(input);
+        return true;
+    });
+   
+    std::string inactive_row(2*nCycle + input_plane[0].size(),'.');
+    std::vector<std::string> plane, inactive_plane(2*nCycle + input_plane.size(), inactive_row);
+    std::vector<std::vector<std::string>> inactive_cude(2*nCycle+1, inactive_plane);
+    std::vector<std::vector<std::vector<std::string>>> dem(2*nCycle+1, inactive_cude);
+
+    for(int i = 0; i < nCycle; ++i) plane.push_back(inactive_row);
+    for(const auto& row: input_plane) plane.push_back(std::string(nCycle, '.') + row + std::string(nCycle, '.'));
+    for(int i = 0; i < nCycle; ++i) plane.push_back(inactive_row);
+    dem[nCycle][nCycle] = plane;
+    
+    size_t m = dem.size();
+    size_t n = m ? dem[0].size() : 0;
+    size_t o = n ? dem[0][0].size() : 0;
+    size_t p = o ? dem[0][0][0].size() : 0;
+    for(int i = 0; i < nCycle; ++i){
+        auto curr = dem;
+        for(int i = 0; i < m; ++i){
+            for(int j = 0; j < n; ++j){
+                for(int k = 0; k < o; ++k){
+                    for(int l = 0; l < p; ++l){
+                        int cnt = count_neighbours(dem, i, j, k, l);
+                        if(dem[i][j][k][l] == '#') {
+                            curr[i][j][k][l] = (cnt == 2 || cnt == 3) ? '#' : '.';
+                        }
+                        else  curr[i][j][k][l] =  cnt == 3 ? '#' : '.';
+                    }
+                }
+            }
+        }
+        dem = std::move(curr);
+    }
+    
+    int ans = 0;
+    for(auto& cube: dem){
+        for(auto& plane: cube){
+            for(auto& row: plane){
+                ans += std::count_if(row.begin(),row.end(), [](char c) {return c == '#';});
+            }
+        }
+    }
+    std::cout << "ans2: " << ans << std::endl;
+}
+
+int Solution2020::count_neighbours(const std::vector<std::vector<std::vector<std::string>>>& dem,
+                                   int x, int y, int z, int w){
+    size_t m = dem.size();
+    size_t n = m ? dem[0].size() : 0;
+    size_t o = n ? dem[0][0].size() : 0;
+    size_t p = o ? dem[0][0][0].size() : 0;
+    int cnt = 0;
+    for(int dx = -1; dx <= +1; ++dx){
+        for(int dy = -1; dy <= +1; ++dy){
+            for(int dz = -1; dz <= +1; ++dz){
+                for(int dw = -1; dw <= +1; ++dw){
+                    if(dx == 0 && dy == 0 && dz == 0 && dw == 0) continue;
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    int nz = z + dz;
+                    int nw = w + dw;
+                    if(nx < 0 || nx >= m) continue;
+                    if(ny < 0 || ny >= n) continue;
+                    if(nz < 0 || nz >= o) continue;
+                    if(nw < 0 || nw >= p) continue;
+                    cnt += dem[nx][ny][nz][nw] == '#';
+                }
+            }
+        }
+    }
+    return cnt;
+}
+
+void Solution2020::solve3d(const std::string& inputfile) {
+    std::vector<std::string> input_plane;
+    const int nCycle = 6;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        std::istringstream iss(line);
+        std::string input;
+        iss >> input;
+        input_plane.push_back(input);
+        return true;
+    });
+
+    std::string inactive_row(2*nCycle + input_plane[0].size(),'.');
+    std::vector<std::string> plane, inactive_plane(2*nCycle + input_plane.size(), inactive_row);
+    std::vector<std::vector<std::string>> cube(2*nCycle+1, inactive_plane);
+    
+    for(int i = 0; i < nCycle; ++i) plane.push_back(inactive_row);
+    for(const auto& row: input_plane) plane.push_back(std::string(nCycle, '.') + row + std::string(nCycle, '.'));
+    for(int i = 0; i < nCycle; ++i) plane.push_back(inactive_row);
+
+    cube[nCycle] = plane;
+    size_t m = cube.size();
+    size_t n = m ? cube[0].size() : 0;
+    size_t o = n ? cube[0][0].size() : 0;
+    for(int i = 0; i < nCycle; ++i){
+        auto curr = cube;
+        for(int i = 0; i < m; ++i){
+            for(int j = 0; j < n; ++j){
+                for(int k = 0; k < o; ++k){
+                    int cnt = count_neighbours(cube, i, j, k);
+                    if(cube[i][j][k] == '#') {
+                        curr[i][j][k] = (cnt == 2 || cnt == 3) ? '#' : '.';
+                    }
+                    else  curr[i][j][k] =  cnt == 3 ? '#' : '.';
+                }
+            }
+        }
+        cube = std::move(curr);
+    }
+
+    int ans1 = 0;
+    for(auto& plane: cube){
+        for(auto& row: plane){
+            ans1 += std::count_if(row.begin(),row.end(), [](char c) {return c == '#';});
+        }
+    }
+    std::cout << "ans1: " << ans1 << std::endl;
+}
+
+int Solution2020::count_neighbours(const std::vector<std::vector<std::string>>& cube,
+                                   int x, int y, int z){
+    
+    size_t m = cube.size();
+    size_t n = m ? cube[0].size() : 0;
+    size_t o = n ? cube[0][0].size() : 0;
+    int cnt = 0;
+    for(int dx = -1; dx <= +1; ++dx){
+        for(int dy = -1; dy <= +1; ++dy){
+            for(int dz = -1; dz <= +1; ++dz){
+                if(dx == 0 && dy == 0 && dz == 0) continue;
+                int nx = x + dx;
+                int ny = y + dy;
+                int nz = z + dz;
+                if(nx < 0 || nx >= m) continue;
+                if(ny < 0 || ny >= n) continue;
+                if(nz < 0 || nz >= o) continue;
+                cnt += cube[nx][ny][nz] == '#';
+            }
+        }
+    }
+    return cnt;
 }
 
 void Solution2020::day16(const std::string& inputfile) {
-    
     std::vector<std::vector<int>> tickets;
     std::vector<int> myticket;
     std::vector<std::function<bool(int)>> validators;

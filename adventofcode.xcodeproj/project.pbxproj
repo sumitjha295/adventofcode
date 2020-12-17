@@ -29,6 +29,7 @@
 		952E46EF2587D23B0010761A /* day2.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E46EE2587D2330010761A /* day2.txt */; };
 		952E46F22588ED430010761A /* day3.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E46F12588ED370010761A /* day3.txt */; };
 		952E46F52589F88A0010761A /* day16.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E46F42589F87F0010761A /* day16.txt */; };
+		952E46FC258B6E5D0010761A /* day17.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E46FB258B6E540010761A /* day17.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,6 +51,7 @@
 			dstPath = data/2020;
 			dstSubfolderSpec = 16;
 			files = (
+				952E46FC258B6E5D0010761A /* day17.txt in CopyFiles */,
 				952E46F52589F88A0010761A /* day16.txt in CopyFiles */,
 				952E46C12587B07F0010761A /* day13.txt in CopyFiles */,
 				952E46C22587B07F0010761A /* day12.txt in CopyFiles */,
@@ -96,6 +98,7 @@
 		952E46EE2587D2330010761A /* day2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day2.txt; sourceTree = "<group>"; };
 		952E46F12588ED370010761A /* day3.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day3.txt; sourceTree = "<group>"; };
 		952E46F42589F87F0010761A /* day16.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day16.txt; sourceTree = "<group>"; };
+		952E46FB258B6E540010761A /* day17.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day17.txt; sourceTree = "<group>"; };
 		956DFAE62577ED2C006AFB79 /* adventofcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = adventofcode; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -131,6 +134,7 @@
 		952E46A52587AF580010761A /* 2020 */ = {
 			isa = PBXGroup;
 			children = (
+				952E46FB258B6E540010761A /* day17.txt */,
 				952E46F42589F87F0010761A /* day16.txt */,
 				952E46A62587AF580010761A /* day13.txt */,
 				952E46A72587AF580010761A /* day12.txt */,

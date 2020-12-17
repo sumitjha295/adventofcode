@@ -34,6 +34,12 @@ public:
     virtual void run(int day = -1) override;
     
 private:
+    static void day17(const std::string& inputfile);
+    static void solve3d(const std::string& inputfile);
+    static void solve4d(const std::string& inputfile);
+    static int count_neighbours(const std::vector<std::vector<std::string>>& cube, int x, int y, int z);
+    static int count_neighbours(const std::vector<std::vector<std::vector<std::string>>>& dem, int x, int y, int z, int w);
+    
     static void day16(const std::string& inputfile);
     
     static void day15();
