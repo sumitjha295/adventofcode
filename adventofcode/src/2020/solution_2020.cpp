@@ -75,8 +75,8 @@ void Solution2020::day17(const std::string& inputfile) {
 int Solution2020::solve4d(const std::vector<std::string>& input_plane, int nCycle) {
     std::string inactive_row(2*nCycle + input_plane[0].size(),'.');
     std::vector<std::string> plane, inactive_plane(2*nCycle + input_plane.size(), inactive_row);
-    std::vector<std::vector<std::string>> inactive_cude(2*nCycle+1, inactive_plane);
-    std::vector<std::vector<std::vector<std::string>>> dem(2*nCycle+1, inactive_cude);
+    std::vector<std::vector<std::string>> inactive_cube(2*nCycle+1, inactive_plane);
+    std::vector<std::vector<std::vector<std::string>>> dem(2*nCycle+1, inactive_cube);
 
     for(int i = 0; i < nCycle; ++i) plane.push_back(inactive_row);
     for(const auto& row: input_plane) plane.push_back(std::string(nCycle, '.') + row + std::string(nCycle, '.'));
