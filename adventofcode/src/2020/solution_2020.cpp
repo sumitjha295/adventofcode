@@ -9,13 +9,6 @@
 
 namespace
 {
-    struct tuple_hash {
-        inline size_t operator()(const std::tuple<int, int, int> &v) const {
-            std::hash<int> int_hasher;
-            const auto& [x,y,z] = v;
-            return int_hasher(x^y^z);
-        }
-    };
     const std::string resource_dir = "data/2020/";
     const std::unordered_set<std::string> colors = {"amb", "blu", "brn", "gry", "grn", "hzl", "oth"};
     const std::vector<std::pair<size_t, size_t>> dirs = {{0,1},{1,0},{0,-1},{-1,0},{-1,-1},{-1,1},{1,-1},{1,1}};
@@ -81,11 +74,10 @@ uint64_t Solution2020::evaluate_with_precedence(const std::string &expression) {
         
         if(!std::isdigit(expression[i]) || i == expression.size()-1){
             if(expression[i] == '('){
-                int open = 0;
-                int j = i;
+                int j = i, open = 0;;
                 while(j < expression.size()) {
                     if(expression[j] == '(') ++open;
-                    if(expression[j] == ')') --open;
+                    else if(expression[j] == ')') --open;
                     ++j;
                     if(open == 0) break;
                 }
@@ -116,11 +108,10 @@ uint64_t Solution2020::evaluate_without_precedence(const std::string &expression
         
         if(!std::isdigit(expression[i]) || i == expression.size()-1){
             if(expression[i] == '('){
-                int open = 0;
-                int j = i;
+                int j = i, open = 0;;
                 while(j < expression.size()) {
                     if(expression[j] == '(') ++open;
-                    if(expression[j] == ')') --open;
+                    else if(expression[j] == ')') --open;
                     ++j;
                     if(open == 0) break;
                 }
@@ -132,7 +123,7 @@ uint64_t Solution2020::evaluate_without_precedence(const std::string &expression
             else if(action == '*') res *= num;
             else res = num;
             num = 0;
-            while(i<expression.size() && std::isspace(expression[i])) ++i;
+            while(i < expression.size() && std::isspace(expression[i])) ++i;
             if(i < expression.size()) action = expression[i];
         }
     }
@@ -336,7 +327,7 @@ void Solution2020::day16(const std::string& inputfile) {
         }
         return true;
     });
-
+    
     //PART 2 Solution using bitmasks
     // Helper functiont to find index of highest bit 00001000->3
     auto get_index = [](uint32_t val) {
@@ -346,7 +337,7 @@ void Solution2020::day16(const std::string& inputfile) {
     };
    
     // prepare masks
-    uint32_t all_high = (1 <<validators.size()) -1; // all hight bits, meaning there are all possibile solutions
+    uint32_t all_high = (1 << validators.size()) -1; // all hight bits, meaning there are all possibile solutions
     std::vector<uint32_t> masks(validators.size(), all_high);
     std::unordered_map<uint32_t, uint32_t> solutions;
     for(auto& ticket: tickets){
@@ -370,39 +361,30 @@ void Solution2020::day16(const std::string& inputfile) {
             }
         }
     }
-     
-    //PART 2 Solution using sets
     /*
-    std::unordered_map<size_t, std::unordered_set<size_t>> all_possibilites;
+    //PART 2 Solution using sets
+    
+    std::unordered_map<size_t, std::unordered_set<size_t>> all_options;
     std::unordered_map<size_t, size_t> solutions;
-    std::unordered_set<size_t> initial_possibility;
-    for(size_t i = 0; i < validators.size(); ++i) initial_possibility.insert(i);
-    for(size_t i = 0; i < validators.size(); ++i) all_possibilites[i] = initial_possibility;
+    std::unordered_set<size_t> initial_options;
+    for(size_t i = 0; i < validators.size(); ++i) initial_options.insert(i);
+    for(size_t i = 0; i < validators.size(); ++i) all_options[i] = initial_options;
     for(auto& ticket: tickets){
         for(size_t j = 0; j < ticket.size(); ++j){
             for(int k = 0; k < validators.size(); ++k){
-                if(!validators[k](ticket[j])) all_possibilites[j].erase(k);  // Unset bit that are not possible
+                if(!validators[k](ticket[j])) all_options[j].erase(k);  // Unset bit that are not possible
             }
         }
     }
     
-    while(!all_possibilites.empty()){
-        for(size_t j = 0; j < validators.size(); ++j){
-            // If already found solution then skip
-            if(!all_possibilites.count(j)) continue;
-            
-            // Eliminate columns that do not are not valid or
+    while(solutions.size() != all_options.size()){
+        for(auto& [column, options]: all_options){
+            // Eliminate columns that are
             // already present in solution
-            for(auto& [column, id]: solutions){
-                all_possibilites[j].erase(column);
-            }
-            // If there is only possible column left update solutions and
-            // erase the left column from all_possibilites
-            // else continue for the next round
-            if(all_possibilites[j].size() == 1) {
-                solutions[*all_possibilites[j].begin()] = j;
-                all_possibilites.erase(j);
-            }
+            for(auto& [column, id]: solutions) options.erase(column);
+            // If there is only one column left,
+            // then update solutions
+            if(options.size() == 1)  solutions[*options.begin()] = column;
         }
     }
      */
