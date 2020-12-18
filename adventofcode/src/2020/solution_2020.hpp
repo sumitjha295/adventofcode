@@ -34,6 +34,10 @@ public:
     virtual void run(int day = -1) override;
     
 private:
+    static void day18(const std::string& inputfile);
+    static uint64_t evaluate_with_precedence(const std::string& expression);
+    static uint64_t evaluate_without_precedence(const std::string& expression);
+    
     static void day17(const std::string& inputfile);
     static int solve3d(const std::vector<std::string>& input_plane, int nCycle);
     static int solve4d(const std::vector<std::string>& input_plane, int nCycle);

@@ -49,6 +49,7 @@ Solution2020::Solution2020(){
         std::bind(day15),
         std::bind(day16, resource_dir + "day16.txt"),
         std::bind(day17, resource_dir + "day17.txt"),
+        std::bind(day18, resource_dir + "day18.txt"),
     };
 }
 
@@ -57,6 +58,85 @@ Solution2020::~Solution2020(){}
 
 void Solution2020::run(int day){
     ISolution::run(16);
+}
+
+void Solution2020::day18(const std::string& inputfile) {
+    uint64_t ans1 = 0, ans2 = 0;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        ans1 += evaluate_without_precedence(line);
+        ans2 += evaluate_with_precedence(line);
+        return true;
+    });
+    std::cout << "ans1: " << ans1 << std::endl;
+    std::cout << "ans2: " << ans2 << std::endl;
+}
+
+uint64_t Solution2020::evaluate_with_precedence(const std::string &expression) {
+    uint64_t num = 0;
+    char action = ' ';
+    std::vector<uint64_t> values;
+    for(int i = 0; i < expression.size(); ++i){
+        if(std::isspace(expression[i])) continue;
+        if(std::isdigit(expression[i])) num = 10*num + (expression[i]-'0');
+        
+        if(!std::isdigit(expression[i]) || i == expression.size()-1){
+            if(expression[i] == '('){
+                int open = 0;
+                int j = i;
+                while(j < expression.size()) {
+                    if(expression[j] == '(') ++open;
+                    if(expression[j] == ')') --open;
+                    ++j;
+                    if(open == 0) break;
+                }
+                num = evaluate_with_precedence(expression.substr(i+1, j-i-1));
+                i = j;
+            }
+
+            if(action == '+') {
+                num += !values.empty() ? values.back(): 0;
+                if(!values.empty()) values.pop_back();
+            }
+            values.push_back(num);
+            num = 0;
+            while(i<expression.size() && std::isspace(expression[i])) ++i;
+            if(i < expression.size()) action = expression[i];
+        }
+    }
+    return std::accumulate(values.begin(), values.end(), 1ull, std::multiplies<uint64_t>());
+}
+
+uint64_t Solution2020::evaluate_without_precedence(const std::string &expression) {
+    uint64_t num = 0;
+    uint64_t res = 0;
+    char action = ' ';
+    for(int i = 0; i < expression.size(); ++i){
+        if(std::isspace(expression[i])) continue;
+        if(std::isdigit(expression[i])) num = 10*num + (expression[i]-'0');
+        
+        if(!std::isdigit(expression[i]) || i == expression.size()-1){
+            if(expression[i] == '('){
+                int open = 0;
+                int j = i;
+                while(j < expression.size()) {
+                    if(expression[j] == '(') ++open;
+                    if(expression[j] == ')') --open;
+                    ++j;
+                    if(open == 0) break;
+                }
+                num = evaluate_without_precedence(expression.substr(i+1, j-i-1));
+                i = j;
+            }
+
+            if(action == '+') res += num;
+            else if(action == '*') res *= num;
+            else res = num;
+            num = 0;
+            while(i<expression.size() && std::isspace(expression[i])) ++i;
+            if(i < expression.size()) action = expression[i];
+        }
+    }
+    return res;
 }
 
 void Solution2020::day17(const std::string& inputfile) {
@@ -256,6 +336,7 @@ void Solution2020::day16(const std::string& inputfile) {
         }
         return true;
     });
+
     //PART 2 Solution using bitmasks
     // Helper functiont to find index of highest bit 00001000->3
     auto get_index = [](uint32_t val) {
@@ -263,7 +344,7 @@ void Solution2020::day16(const std::string& inputfile) {
         while(val >>= 1) ++row;
         return row;
     };
-
+   
     // prepare masks
     uint32_t all_high = (1 <<validators.size()) -1; // all hight bits, meaning there are all possibile solutions
     std::vector<uint32_t> masks(validators.size(), all_high);
@@ -275,7 +356,7 @@ void Solution2020::day16(const std::string& inputfile) {
             }
         }
     }
-
+    
     // start searching
     while(all_high){
         for(uint32_t j = 0; j < masks.size(); ++j){
@@ -289,6 +370,7 @@ void Solution2020::day16(const std::string& inputfile) {
             }
         }
     }
+     
     //PART 2 Solution using sets
     /*
     std::unordered_map<size_t, std::unordered_set<size_t>> all_possibilites;
@@ -296,35 +378,34 @@ void Solution2020::day16(const std::string& inputfile) {
     std::unordered_set<size_t> initial_possibility;
     for(size_t i = 0; i < validators.size(); ++i) initial_possibility.insert(i);
     for(size_t i = 0; i < validators.size(); ++i) all_possibilites[i] = initial_possibility;
-    
-    while(!all_possibilites.empty()){
-        for(auto& ticket: tickets){
-            for(size_t j = 0; j < ticket.size(); ++j){
-                // If already found solution then skip
-                if(!all_possibilites.count(j)) continue;
-                
-                // Eliminate columns that do not are not valid or
-                // already present in solutions
-                auto curr_possibilities = all_possibilites[j];
-                for(auto& column: all_possibilites[j]){
-                    if(!validators[column](ticket[j]) || solutions.count(column)){
-                        curr_possibilities.erase(column);
-                    }
-                }
-                // If there is only possible column left update solutions and
-                // erase the left column from all_possibilites
-                // else continue for the next round
-                if(curr_possibilities.size() == 1) {
-                    solutions[*curr_possibilities.begin()] = j;
-                    all_possibilites.erase(j);
-                }
-                else{
-                    all_possibilites[j] = curr_possibilities;
-                }
+    for(auto& ticket: tickets){
+        for(size_t j = 0; j < ticket.size(); ++j){
+            for(int k = 0; k < validators.size(); ++k){
+                if(!validators[k](ticket[j])) all_possibilites[j].erase(k);  // Unset bit that are not possible
             }
         }
     }
-    */
+    
+    while(!all_possibilites.empty()){
+        for(size_t j = 0; j < validators.size(); ++j){
+            // If already found solution then skip
+            if(!all_possibilites.count(j)) continue;
+            
+            // Eliminate columns that do not are not valid or
+            // already present in solution
+            for(auto& [column, id]: solutions){
+                all_possibilites[j].erase(column);
+            }
+            // If there is only possible column left update solutions and
+            // erase the left column from all_possibilites
+            // else continue for the next round
+            if(all_possibilites[j].size() == 1) {
+                solutions[*all_possibilites[j].begin()] = j;
+                all_possibilites.erase(j);
+            }
+        }
+    }
+     */
     // Finally show the product of columns that starts
     // with departure
     int64_t ans2 = 1;
