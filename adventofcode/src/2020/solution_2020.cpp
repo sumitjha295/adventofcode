@@ -270,9 +270,9 @@ int Solution2020::count_neighbours(const std::vector<std::vector<std::string>>& 
 }
 
 void Solution2020::day16(const std::string& inputfile) {
-    std::vector<std::vector<int>> tickets;
+    std::list<std::vector<int>> tickets;
     std::vector<int> myticket;
-    std::vector<std::function<bool(int)>> validators;
+    std::vector<std::function<bool(int)>> rules;
     std::vector<std::string> types;
     int data_type = 0;
     int ans1 = 0;
@@ -287,7 +287,7 @@ void Solution2020::day16(const std::string& inputfile) {
                 char _str;
                 int a1, b1, a2, b2;
                 iss >> a1 >> _str >> b1 >> or_str >> a2 >> _str >> b2;
-                validators.push_back([a1, b1, a2, b2](int x){
+                rules.push_back([a1, b1, a2, b2](int x){
                     return  (x >= a1 && x <= b1) || (x >= a2 && x <= b2);
                 });
                 types.push_back(type);
@@ -298,7 +298,7 @@ void Solution2020::day16(const std::string& inputfile) {
                     std::string x;
                     std::vector<int> ticket;
                     while(getline(iss, x, ',')) ticket.push_back(std::stoi(x));
-                    tickets.push_back(ticket);
+                    //tickets.push_back(ticket);
                     myticket = std::move(ticket);
                 }
             }
@@ -308,26 +308,25 @@ void Solution2020::day16(const std::string& inputfile) {
                     std::string x;
                     std::vector<int> ticket;
                     while(getline(iss, x, ',')) ticket.push_back(std::stoi(x));
-                    
-                    int valid_row = true;
-                    for(auto& val: ticket){
-                        int valid_count = 0;
-                        for(const auto&validator: validators){
-                            valid_count += validator(val);
-                        }
-                        if(valid_count == 0) {
-                            //PART 1
-                            ans1 += val;
-                            valid_row = false;
-                        }
-                    }
-                    if(valid_row) tickets.push_back(std::move(ticket)); // collecting only valid tickets
+                    tickets.push_back(std::move(ticket));
                 }
             }
         }
         return true;
     });
-    
+    // PART 1
+    for(auto it = tickets.begin(); it != tickets.end();){
+        bool valid = true;
+        for(auto& value: *it){
+            size_t count = 0;
+            for(const auto&rule: rules) count += rule(value);
+            if(!count){
+                ans1 += value;
+                valid = false;
+            }
+        }
+        valid ? ++it : tickets.erase(it++);
+    }
     //PART 2 Solution using bitmasks
     // Helper functiont to find index of highest bit 00001000->3
     auto get_index = [](uint32_t val) {
@@ -335,15 +334,14 @@ void Solution2020::day16(const std::string& inputfile) {
         while(val >>= 1) ++row;
         return row;
     };
-   
     // prepare masks
-    uint32_t all_high = (1 << validators.size()) -1; // all hight bits, meaning there are all possibile solutions
-    std::vector<uint32_t> masks(validators.size(), all_high);
+    uint32_t all_high = (1 << rules.size()) -1; // all hight bits, meaning there are all possibile solutions
+    std::vector<uint32_t> masks(rules.size(), all_high);
     std::unordered_map<uint32_t, uint32_t> solutions;
     for(auto& ticket: tickets){
         for(size_t j = 0; j < ticket.size(); ++j){
-            for(int k = 0; k < validators.size(); ++k){
-                if(!validators[k](ticket[j])) masks[j] &= (~(1<<k));  // Unset bit that are not possible
+            for(int k = 0; k < rules.size(); ++k){
+                if(!rules[k](ticket[j])) masks[j] &= (~(1<<k));  // Unset bit that are not possible
             }
         }
     }
