@@ -31,6 +31,7 @@
 		952E46F52589F88A0010761A /* day16.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E46F42589F87F0010761A /* day16.txt */; };
 		952E46FC258B6E5D0010761A /* day17.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E46FB258B6E540010761A /* day17.txt */; };
 		952E4712258CB90B0010761A /* day18.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 952E4710258CB8790010761A /* day18.txt */; };
+		95B6C06F258E10D80006B625 /* day19.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 95B6C06E258E10CF0006B625 /* day19.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +53,7 @@
 			dstPath = data/2020;
 			dstSubfolderSpec = 16;
 			files = (
+				95B6C06F258E10D80006B625 /* day19.txt in CopyFiles */,
 				952E4712258CB90B0010761A /* day18.txt in CopyFiles */,
 				952E46FC258B6E5D0010761A /* day17.txt in CopyFiles */,
 				952E46F52589F88A0010761A /* day16.txt in CopyFiles */,
@@ -103,6 +105,7 @@
 		952E46FB258B6E540010761A /* day17.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day17.txt; sourceTree = "<group>"; };
 		952E4710258CB8790010761A /* day18.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day18.txt; sourceTree = "<group>"; };
 		956DFAE62577ED2C006AFB79 /* adventofcode */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = adventofcode; sourceTree = BUILT_PRODUCTS_DIR; };
+		95B6C06E258E10CF0006B625 /* day19.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = day19.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +140,7 @@
 		952E46A52587AF580010761A /* 2020 */ = {
 			isa = PBXGroup;
 			children = (
+				95B6C06E258E10CF0006B625 /* day19.txt */,
 				952E4710258CB8790010761A /* day18.txt */,
 				952E46FB258B6E540010761A /* day17.txt */,
 				952E46F42589F87F0010761A /* day16.txt */,

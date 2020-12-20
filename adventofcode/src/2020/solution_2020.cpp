@@ -43,6 +43,7 @@ Solution2020::Solution2020(){
         std::bind(day16, resource_dir + "day16.txt"),
         std::bind(day17, resource_dir + "day17.txt"),
         std::bind(day18, resource_dir + "day18.txt"),
+        std::bind(day19, resource_dir + "day19.txt"),
     };
 }
 
@@ -50,7 +51,97 @@ Solution2020::Solution2020(){
 Solution2020::~Solution2020(){}
 
 void Solution2020::run(int day){
-    ISolution::run(16);
+    ISolution::run(19);
+}
+
+void Solution2020::day19(const std::string& inputfile) {
+    
+    std::unordered_map<size_t, std::vector<std::vector<size_t>>> rules;
+    std::unordered_map<size_t, char> chars;
+    std::vector<std::string> messages;
+    int data_type = 0;
+    read_if(inputfile, [&](const std::string& line, bool isLast){
+        if(line.empty()) ++data_type;
+        else if (data_type == 0){
+            auto pos = line.find(':');
+            size_t ruleId = std::stoul(line.substr(0, pos));
+            std::string str_rules = line.substr(pos+2);
+            if(str_rules[0] == '"'){
+                chars[ruleId] =  str_rules[1];
+            }
+            else{
+                std::istringstream iss(str_rules);
+                std::string next_rule;
+                std::vector<std::vector<size_t>> nextRules;
+                while (std::getline(iss, next_rule, '|')) {
+                    std::istringstream iss(next_rule);
+                    size_t next_id;
+                    std::vector<size_t> ids;
+                    while (iss >> next_id)  ids.push_back(next_id);
+                    nextRules.push_back(std::move(ids));
+                }
+                rules[ruleId] = std::move(nextRules);
+            }
+            
+        }
+        else if (data_type == 1){
+            messages.push_back(line);
+        }
+        return true;
+    });
+
+    //PART 1
+    uint64_t ans1 = 0, ans2 = 0;
+    std::regex rgx1("^" + compute_regex(0, rules, chars) +  "$");
+    for(auto& message: messages)
+        ans1 += std::regex_match(message, rgx1);
+    
+    // PART 2
+    //8: 42 | 42 8 -> 42 | 42 42 | 42 42 42 .. 42+
+    //11: 42 31 | 42 11 31 -> 42 31 | 42 42 31 31 | 42 42 42 31 31  31 ..42{n}31{n}
+    //0 : 42{m}31{n} m > n
+    
+    std::string rule42 = compute_regex(42, rules, chars);
+    std::string rule31 = compute_regex(31, rules, chars);
+    std::string rule0 = "^((:?" + rule42 + ")+)((:?" + rule31 + ")+)$";
+    //std::cout << rule0 << std::endl;
+    std::regex regex0(rule0);
+    for(const auto& message: messages){
+        std::smatch matches;
+        if (std::regex_search(message, matches, regex0)) {
+            using reg_itr = std::regex_token_iterator<std::string::iterator>;
+            std::regex regex42(rule42);
+            std::string str42 =  matches[1].str(); // hacky
+            reg_itr it42{str42.begin(), str42.end(), regex42, 1};
+
+            std::regex regex31(rule31);
+            std::string str31 =  matches[3].str(); // hacky
+            reg_itr it31{str31.begin(), str31.end(), regex31, 1};
+            reg_itr end{};
+
+            ans2 += (std::distance(it42, {}) > std::distance(it31, {}));
+         }
+    }
+    std::cout << "ans1: " <<  ans1 << std::endl;
+    std::cout << "ans2: " <<  ans2 << std::endl;
+}
+
+std::string Solution2020::compute_regex(size_t index,
+                                        const std::unordered_map<size_t, std::vector<std::vector<size_t>>>& rules,
+                                        const std::unordered_map<size_t, char>& chars){
+    std::string exp;
+    if(!rules.count(index)) return exp;
+    for(const auto& rule: rules.at(index)){
+        for(auto& id: rule){
+            std::string group = chars.count(id) ? std::string(1, chars.at(id)) : compute_regex(id, rules, chars);
+            if(group.size() > 1) exp.append("(?:");
+            exp.append(group);
+            if(group.size() > 1)  exp.push_back(')');
+        }
+        exp.push_back('|');
+    }
+    exp.pop_back();
+    return exp;
 }
 
 void Solution2020::day18(const std::string& inputfile) {

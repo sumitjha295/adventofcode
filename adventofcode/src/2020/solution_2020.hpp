@@ -22,6 +22,7 @@
 #include <numeric>
 #include <map>
 #include <complex>
+#include <regex>
 
 #include "ISolution.hpp"
 
@@ -34,6 +35,11 @@ public:
     virtual void run(int day = -1) override;
     
 private:
+    static void day19(const std::string& inputfile);
+    static std::string compute_regex(size_t index,
+                                     const std::unordered_map<size_t, std::vector<std::vector<size_t>>>& rules,
+                                     const std::unordered_map<size_t, char>& chars);
+    
     static void day18(const std::string& inputfile);
     static uint64_t evaluate_with_precedence(const std::string& expression);
     static uint64_t evaluate_without_precedence(const std::string& expression);
